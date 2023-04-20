@@ -38,7 +38,7 @@ def normalize(position: np.ndarray, target: np.ndarray):
 
 
 class Dot:
-    def __init__(self, x, y, obs: list, target: list = None, other_dots: list = None) -> None:  # noqa
+    def __init__(self, x, y, target: list = None) -> None:  # noqa
         self.x: float = x
         self.y: float = y
         self.target = target
@@ -46,9 +46,7 @@ class Dot:
             self.target = np.random.random(2) * 540 + 50
         self.maxSpeed = 10
         self.velocity = np.array([0, 0])
-        self.obs_list: list = obs
         self.radius = 10
-        self.other_dots = other_dots
 
     @property
     def pos(self):
@@ -72,14 +70,8 @@ class Dot:
 
         self.velocity = self.velocity + acceleration * clock.get_time()
 
-        checked_pos = self.check_obstruction(
-            self.velocity[0], self.velocity[1])
-
-        self.x += checked_pos[0]
-        self.y += checked_pos[1]
-
-    def check_obstruction(self, x_pos, y_pos):
-        return [x_pos, y_pos]
+        self.x += self.velocity[0]
+        self.y += self.velocity[1]
 
 
 class Obstruction:
