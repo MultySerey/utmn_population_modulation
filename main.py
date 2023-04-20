@@ -59,7 +59,7 @@ class Dot:
             np.array(self.target) - np.array(self.pos))
 
         if distance < 10:
-            self.target = np.random.random(2) * 540 + 50
+            self.target = np.random.random(2) * 600 + 20
 
         desired_direction = normalize(
             np.array(self.target), np.array(self.pos))
@@ -74,22 +74,6 @@ class Dot:
         self.y += self.velocity[1]
 
 
-class Obstruction:
-    def __init__(self, x0, y0, x1, y1) -> None:
-        self.x0 = x0
-        self.y0 = y0
-        self.x1 = x1
-        self.y1 = y1
-
-    @property
-    def start_pos(self):
-        return [self.x0, self.y0]
-
-    @property
-    def end_pos(self):
-        return [self.x1, self.y1]
-
-
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("My Game")
@@ -97,40 +81,26 @@ clock = pygame.time.Clock()
 
 
 def main():
-    # obs = [Obstruction(160, 160, 240, 240), Obstruction(400, 160, 480, 480)]
-    # dot_target = (np.random.random(2) * 640).tolist()
-
     test_dot = [Dot(np.random.random() * 640, np.random.random() * 640)
-                for _ in range(2)]
-    # for d in test_dot:
-    #     d.other_dots = test_dot
+                for _ in range(50)]
 
     running = True
 
     def redraw_window():
-        # for o in obs:
-        #    pygame.draw.lines(screen, GREEN, True, points=[
-        # noqa                     (o.x0, o.y0), (o.x1, o.y0), (o.x1, o.y1), (o.x0, o.y1)]) 
         # pygame.draw.circle(screen, RED, dot_target, 5)
         # pygame.draw.circle(screen, RED, dot_target, 100, 1)
         for dot in test_dot:
-            pygame.draw.circle(
-                screen, GREEN, (dot.target[0], dot.target[1]), 5)
+            # pygame.draw.circle(screen, GREEN, dot.target, 5)
             pygame.draw.circle(screen, WHITE, (dot.x, dot.y), dot.radius, 2)
             pygame.draw.line(screen, WHITE, (dot.x, dot.y),
                              (dot.velocity[0] * 4 + dot.x,
                              dot.velocity[1] * 4 + dot.y), 1)
-        # pygame.draw.line(screen, WHITE, (Vector2.zero() +
-        #                 320).position, (dir_to_mouse * 20 + 320).position)
         pygame.display.update()
 
     ticker = 1
     while running:
         clock.tick(FPS)
-        # print(clock.get_time(), end='\r')
         ticker += 1
-
-        # mouse_pos = pygame.mouse.get_pos()
 
         redraw_window()
 
@@ -141,14 +111,12 @@ def main():
                 ticker = 1
 
         if ticker % 250 == 0:
-            # dot_target = (np.random.random(2) * 320 + 320).tolist()
             ticker = 1
 
-        # for dot in test_dot:
-        #    dot.target = dot_target
-        #    dot.update()
+        for dot in test_dot:
+            dot.update()
 
-        print(ticker, end="\r")
+        # print(ticker, end="    \r")
         screen.fill(BLACK)
 
     pygame.quit()
