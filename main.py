@@ -9,6 +9,7 @@ import typing
 
 WIDTH, HEIGHT = 640, 640
 FPS = 30
+TICK = 1/FPS
 DOT_RADIUS = 20
 HALF_RADIUS = DOT_RADIUS / 2
 
@@ -46,7 +47,7 @@ class Dot:
         self.target = target
         if self.target is None:
             self.target = np.random.random(2) * 540 + 50
-        self.maxSpeed = 10
+        self.maxSpeed = 400.0
         self.velocity = np.array([0, 0])
         self.radius = 10
 
@@ -55,7 +56,7 @@ class Dot:
         return [self.x, self.y]
 
     def update(self):
-        steer_strength = 0.05
+        steer_strength = 10.0
 
         distance = vector_length(
             np.array(self.target) - np.array(self.pos))
@@ -70,10 +71,10 @@ class Dot:
         des_steer = (des_velocity - self.velocity) * steer_strength
         acceleration = np.array(clamp_magnitude(des_steer, steer_strength))
 
-        self.velocity = self.velocity + acceleration * clock.get_time()
+        self.velocity = self.velocity + acceleration * TICK
 
-        self.x += self.velocity[0]
-        self.y += self.velocity[1]
+        self.x += self.velocity[0] * TICK
+        self.y += self.velocity[1] * TICK
 
 
 class DotController:
@@ -94,14 +95,12 @@ def main():
     running = True
 
     def redraw_window():
-        # pygame.draw.circle(screen, RED, dot_target, 5)
-        # pygame.draw.circle(screen, RED, dot_target, 100, 1)
         for dot in test_dot:
             pygame.draw.circle(screen, GREEN, dot.target, 5)
             pygame.draw.circle(screen, WHITE, (dot.x, dot.y), dot.radius, 2)
             pygame.draw.line(screen, WHITE, (dot.x, dot.y),
-                             (dot.velocity[0] * 4 + dot.x,
-                             dot.velocity[1] * 4 + dot.y), 1)
+                             (dot.velocity[0]/8 + dot.x,
+                             dot.velocity[1]/8 + dot.y), 1)
         pygame.display.update()
 
     ticker = 1
@@ -117,13 +116,10 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 ticker = 1
 
-        if ticker % 250 == 0:
-            ticker = 1
-
         for dot in test_dot:
             dot.update()
 
-        # print(ticker, end="    \r")
+        # print(prev_tick, ticker, end="    \r")
         screen.fill(BLACK)
 
     pygame.quit()
