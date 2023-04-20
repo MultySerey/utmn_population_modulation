@@ -50,6 +50,7 @@ class Dot:
         self.maxSpeed = 400.0
         self.velocity = np.array([0, 0])
         self.radius = 10
+        self.accuracy = 10
 
     @property
     def pos(self):
@@ -61,7 +62,7 @@ class Dot:
         distance = vector_length(
             np.array(self.target) - np.array(self.pos))
 
-        if distance < 10:
+        if distance < self.accuracy:
             self.target = np.random.random(2) * 600 + 20
 
         desired_direction = normalize(
@@ -90,17 +91,19 @@ clock = pygame.time.Clock()
 
 def main():
     test_dot = [Dot(np.random.random() * 640, np.random.random() * 640)
-                for _ in range(50)]
+                for _ in range(1)]
 
     running = True
 
     def redraw_window():
         for dot in test_dot:
-            pygame.draw.circle(screen, GREEN, dot.target, 5)
-            pygame.draw.circle(screen, WHITE, dot.pos, dot.radius, 2)
+            pygame.draw.circle(screen, GREEN, dot.target, dot.accuracy, 1)
+            pygame.draw.line(screen, GREEN, dot.pos, dot.target, 1)
+            pygame.draw.circle(screen, WHITE, dot.pos, dot.radius, 1)
             pygame.draw.line(screen, WHITE, dot.pos,
                              (dot.velocity[0]/8 + dot.x,
                               dot.velocity[1]/8 + dot.y), 1)
+            
         pygame.display.update()
 
     ticker = 1
