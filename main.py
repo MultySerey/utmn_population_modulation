@@ -97,10 +97,10 @@ def main():
     def redraw_window():
         for dot in test_dot:
             pygame.draw.circle(screen, GREEN, dot.target, 5)
-            pygame.draw.circle(screen, WHITE, (dot.x, dot.y), dot.radius, 2)
-            pygame.draw.line(screen, WHITE, (dot.x, dot.y),
+            pygame.draw.circle(screen, WHITE, dot.pos, dot.radius, 2)
+            pygame.draw.line(screen, WHITE, dot.pos,
                              (dot.velocity[0]/8 + dot.x,
-                             dot.velocity[1]/8 + dot.y), 1)
+                              dot.velocity[1]/8 + dot.y), 1)
         pygame.display.update()
 
     ticker = 1
