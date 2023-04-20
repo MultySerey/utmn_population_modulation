@@ -3,6 +3,8 @@ import math
 import numpy as np
 import pygame
 
+import typing
+
 # from Vector2 import Vector2
 
 WIDTH, HEIGHT = 640, 640
@@ -74,6 +76,11 @@ class Dot:
         self.y += self.velocity[1]
 
 
+class DotController:
+    def __init__(self, dots: typing.List[Dot]) -> None:
+        self.dots: typing.List[Dot] = dots
+
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("My Game")
@@ -90,7 +97,7 @@ def main():
         # pygame.draw.circle(screen, RED, dot_target, 5)
         # pygame.draw.circle(screen, RED, dot_target, 100, 1)
         for dot in test_dot:
-            # pygame.draw.circle(screen, GREEN, dot.target, 5)
+            pygame.draw.circle(screen, GREEN, dot.target, 5)
             pygame.draw.circle(screen, WHITE, (dot.x, dot.y), dot.radius, 2)
             pygame.draw.line(screen, WHITE, (dot.x, dot.y),
                              (dot.velocity[0] * 4 + dot.x,
