@@ -41,52 +41,65 @@ def normalize(position: np.ndarray, target: np.ndarray):
 
 
 class Dot:
-    def __init__(self, x, y, target: list = None) -> None:  # noqa
-        self.x: float = x
-        self.y: float = y
-        self.target = target
-        if self.target is None:
-            self.target = np.random.random(2) * 540 + 50
-        self.maxSpeed = 400.0
+    def __init__(self, x: float = 0, y: float = 0) -> None:
+        self.x: float = np.random.random() * 540 + 50
+        self.y: float = np.random.random() * 540 + 50
         self.velocity = np.array([0, 0])
-        self.radius = 10
-        self.accuracy = 10
+        self.maxSpeed = np.random.random()*300+100
+        self.steer_strength = np.random.random()*5+5
 
     @property
-    def pos(self):
+    def position(self):
         return [self.x, self.y]
-
-    def update(self):
-        steer_strength = 10.0
-
-        distance = vector_length(
-            np.array(self.target) - np.array(self.pos))
-
-        if distance < self.accuracy:
-            self.target = np.random.random(2) * 600 + 20
-
-        desired_direction = normalize(
-            np.array(self.target), np.array(self.pos))
-
-        des_velocity = desired_direction * self.maxSpeed * -1
-        des_steer = (des_velocity - self.velocity) * steer_strength
-        acceleration = np.array(clamp_magnitude(des_steer, steer_strength))
-
-        self.velocity = self.velocity + acceleration * TICK
-
-        self.x += self.velocity[0] * TICK
-        self.y += self.velocity[1] * TICK
-
-
-class Dot2:
-    def __init__(self, x: float = None, y: float = None) -> None:
-        self.x: float = x
-        self.y: float = y
 
 
 class DotController:
     def __init__(self, dot_amount: int) -> None:
-        self.dot_list: typing.List[Dot2] = [Dot2() for _ in range(dot_amount)]
+        self.dot_list: typing.List[Dot] = [Dot() for _ in range(dot_amount)]
+        self.target = self.random_target()
+        self.accuracy = 100.0
+
+    def __len__(self):  # Метод len
+        return len(self.dot_list)
+
+    def __getitem__(self, item):  # Обращение к точкам по индексам
+        return self.dot_list[item]
+
+    def __iter__(self):
+        self.iter = 0
+        return self
+
+    def __next__(self):
+        if self.iter < len(self.dot_list):
+            out = self.dot_list[self.iter]
+            self.iter += 1
+            return out
+        else:
+            raise StopIteration
+
+    def random_target(self):
+        return np.random.random(2) * 540 + 50
+
+    def update(self):
+        for dot in self.dot_list:
+            distance = vector_length(
+                np.array(self.target) - np.array(dot.position))
+
+            if distance < self.accuracy:
+                self.target = self.random_target()
+
+            desired_direction = normalize(
+                np.array(self.target), np.array(dot.position))
+
+            des_velocity = desired_direction * dot.maxSpeed * -1
+            des_steer = (des_velocity - dot.velocity) * dot.steer_strength
+            acceleration = np.array(clamp_magnitude(
+                des_steer, dot.steer_strength))
+
+            dot.velocity = dot.velocity + acceleration * TICK
+
+            dot.x += dot.velocity[0] * TICK
+            dot.y += dot.velocity[1] * TICK
 
 
 pygame.init()
@@ -96,19 +109,20 @@ clock = pygame.time.Clock()
 
 
 def main():
-    test_dot = [Dot(np.random.random() * 640, np.random.random() * 640)
-                for _ in range(50)]
+    dot_controller = DotController(50)
 
     running = True
 
     def redraw_window():
-        for dot in test_dot:
+        pygame.draw.circle(screen, GREEN, dot_controller.target,
+                           dot_controller.accuracy, 1)
+        for dot in dot_controller:
             # pygame.draw.circle(screen, GREEN, dot.target, dot.accuracy, 1)
             # pygame.draw.line(screen, GREEN, dot.pos, dot.target, 1)
-            pygame.draw.circle(screen, WHITE, dot.pos, dot.radius, 1)
-            # pygame.draw.line(screen, WHITE, dot.pos,
-            #                 (dot.velocity[0]/8 + dot.x,
-            #                  dot.velocity[1]/8 + dot.y), 1)
+            pygame.draw.circle(screen, WHITE, dot.position, 10, 1)
+            pygame.draw.line(screen, WHITE, dot.position,
+                             (dot.velocity[0]/8 + dot.x,
+                              dot.velocity[1]/8 + dot.y), 1)
 
         pygame.display.update()
 
@@ -125,8 +139,7 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 ticker = 1
 
-        for dot in test_dot:
-            dot.update()
+        dot_controller.update()
 
         # print(prev_tick, ticker, end="    \r")
         screen.fill(BLACK)
