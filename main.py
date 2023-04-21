@@ -46,8 +46,9 @@ class Dot:
         self.y: float = np.random.random() * 540 + 50
         self.velocity = np.array([0, 0])
         self.maxSpeed = np.random.random() * 300 + 300
-        self.steer_strength = np.random.random() * 5 + 5
-        self.color = np.random.random(3)*200+50
+        self.steer_strength = np.random.random() + 10
+        self.color = GREEN
+        self.radius = 10
 
     @property
     def position(self):
@@ -60,10 +61,10 @@ class DotController:
         self.target = self.random_target()
         self.accuracy = 20.0
 
-    def __len__(self):  # Метод len
+    def __len__(self):
         return len(self.dot_list)
 
-    def __getitem__(self, item):  # Обращение к точкам по индексам
+    def __getitem__(self, item):
         return self.dot_list[item]
 
     def __iter__(self):
@@ -110,7 +111,7 @@ clock = pygame.time.Clock()
 
 
 def main():
-    dot_controller = DotController(100)
+    dot_controller = DotController(1)
 
     running = True
 
@@ -120,16 +121,14 @@ def main():
             #                   dot_controller.accuracy, 1)
             # pygame.draw.line(screen, GREEN, dot.position,
             #                   dot_controller.target, 1)
-            # pygame.draw.circle(screen, dot.color, dot.position, 10)
+            pygame.draw.circle(screen, dot.color, dot.position, 10)
+            pygame.draw.line(screen, WHITE, [0, 0], dot.position, 1)
+            pygame.draw.line(screen, WHITE, [dot.x, 0], dot.position, 1)
+            pygame.draw.line(screen, WHITE, [0, dot.y], dot.position, 1)
+            print(dot.cos)
             # pygame.draw.line(screen, dot.color, dot.position,
             #                 (dot.velocity[0]/8 + dot.x,
             #                  dot.velocity[1]/8 + dot.y), 5)
-            pygame.draw.polygon(screen, dot.color,
-                                [[dot.x-10, dot.y-10],
-                                 [dot.velocity[0]/8 + dot.x,
-                                  dot.velocity[1]/8 + dot.y],
-                                 [dot.x+10, dot.y-10]])
-
         pygame.display.update()
 
     ticker = 1
