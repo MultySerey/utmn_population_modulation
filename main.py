@@ -78,9 +78,15 @@ class Dot:
         self.y += self.velocity[1] * TICK
 
 
+class Dot2:
+    def __init__(self, x: float = None, y: float = None) -> None:
+        self.x: float = x
+        self.y: float = y
+
+
 class DotController:
-    def __init__(self, dots: typing.List[Dot]) -> None:
-        self.dots: typing.List[Dot] = dots
+    def __init__(self, dot_amount: int) -> None:
+        self.dot_list: typing.List[Dot2] = [Dot2() for _ in range(dot_amount)]
 
 
 pygame.init()
@@ -91,19 +97,19 @@ clock = pygame.time.Clock()
 
 def main():
     test_dot = [Dot(np.random.random() * 640, np.random.random() * 640)
-                for _ in range(1)]
+                for _ in range(50)]
 
     running = True
 
     def redraw_window():
         for dot in test_dot:
-            pygame.draw.circle(screen, GREEN, dot.target, dot.accuracy, 1)
-            pygame.draw.line(screen, GREEN, dot.pos, dot.target, 1)
+            # pygame.draw.circle(screen, GREEN, dot.target, dot.accuracy, 1)
+            # pygame.draw.line(screen, GREEN, dot.pos, dot.target, 1)
             pygame.draw.circle(screen, WHITE, dot.pos, dot.radius, 1)
-            pygame.draw.line(screen, WHITE, dot.pos,
-                             (dot.velocity[0]/8 + dot.x,
-                              dot.velocity[1]/8 + dot.y), 1)
-            
+            # pygame.draw.line(screen, WHITE, dot.pos,
+            #                 (dot.velocity[0]/8 + dot.x,
+            #                  dot.velocity[1]/8 + dot.y), 1)
+
         pygame.display.update()
 
     ticker = 1
