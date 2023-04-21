@@ -8,7 +8,7 @@ import typing
 # from Vector2 import Vector2
 
 WIDTH, HEIGHT = 640, 640
-FPS = 30
+FPS = 60
 TICK = 1/FPS
 DOT_RADIUS = 20
 HALF_RADIUS = DOT_RADIUS / 2
@@ -41,12 +41,13 @@ def normalize(position: np.ndarray, target: np.ndarray):
 
 
 class Dot:
-    def __init__(self, x: float = 0, y: float = 0) -> None:
+    def __init__(self) -> None:
         self.x: float = np.random.random() * 540 + 50
         self.y: float = np.random.random() * 540 + 50
         self.velocity = np.array([0, 0])
-        self.maxSpeed = np.random.random()*350+50
-        self.steer_strength = np.random.random()*5+5
+        self.maxSpeed = np.random.random() * 300 + 300
+        self.steer_strength = np.random.random() * 5 + 5
+        self.color = np.random.random(3)*200+50
 
     @property
     def position(self):
@@ -109,7 +110,7 @@ clock = pygame.time.Clock()
 
 
 def main():
-    dot_controller = DotController(50)
+    dot_controller = DotController(100)
 
     running = True
 
@@ -117,11 +118,17 @@ def main():
         for dot in dot_controller:
             # pygame.draw.circle(screen, GREEN, dot_controller.target,
             #                   dot_controller.accuracy, 1)
-            # pygame.draw.line(screen, GREEN, dot.position, dot_controller.target, 1)
-            pygame.draw.circle(screen, WHITE, dot.position, 10, 1)
-            pygame.draw.line(screen, WHITE, dot.position,
-                             (dot.velocity[0]/8 + dot.x,
-                              dot.velocity[1]/8 + dot.y), 1)
+            # pygame.draw.line(screen, GREEN, dot.position,
+            #                   dot_controller.target, 1)
+            # pygame.draw.circle(screen, dot.color, dot.position, 10)
+            # pygame.draw.line(screen, dot.color, dot.position,
+            #                 (dot.velocity[0]/8 + dot.x,
+            #                  dot.velocity[1]/8 + dot.y), 5)
+            pygame.draw.polygon(screen, dot.color,
+                                [[dot.x-10, dot.y-10],
+                                 [dot.velocity[0]/8 + dot.x,
+                                  dot.velocity[1]/8 + dot.y],
+                                 [dot.x+10, dot.y-10]])
 
         pygame.display.update()
 
@@ -140,7 +147,6 @@ def main():
 
         dot_controller.update()
 
-        # print(prev_tick, ticker, end="    \r")
         screen.fill(BLACK)
 
     pygame.quit()
