@@ -45,7 +45,7 @@ class Dot:
         self.x: float = np.random.random() * 540 + 50
         self.y: float = np.random.random() * 540 + 50
         self.velocity = np.array([0, 0])
-        self.maxSpeed = np.random.random()*300+100
+        self.maxSpeed = np.random.random()*350+50
         self.steer_strength = np.random.random()*5+5
 
     @property
@@ -57,7 +57,7 @@ class DotController:
     def __init__(self, dot_amount: int) -> None:
         self.dot_list: typing.List[Dot] = [Dot() for _ in range(dot_amount)]
         self.target = self.random_target()
-        self.accuracy = 100.0
+        self.accuracy = 20.0
 
     def __len__(self):  # Метод len
         return len(self.dot_list)
@@ -114,11 +114,10 @@ def main():
     running = True
 
     def redraw_window():
-        pygame.draw.circle(screen, GREEN, dot_controller.target,
-                           dot_controller.accuracy, 1)
         for dot in dot_controller:
-            # pygame.draw.circle(screen, GREEN, dot.target, dot.accuracy, 1)
-            # pygame.draw.line(screen, GREEN, dot.pos, dot.target, 1)
+            # pygame.draw.circle(screen, GREEN, dot_controller.target,
+            #                   dot_controller.accuracy, 1)
+            # pygame.draw.line(screen, GREEN, dot.position, dot_controller.target, 1)
             pygame.draw.circle(screen, WHITE, dot.position, 10, 1)
             pygame.draw.line(screen, WHITE, dot.position,
                              (dot.velocity[0]/8 + dot.x,
