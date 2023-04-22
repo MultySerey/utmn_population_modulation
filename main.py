@@ -1,9 +1,8 @@
 import math
+import typing
 
 import numpy as np
 import pygame
-
-import typing
 
 # from Vector2 import Vector2
 
@@ -12,6 +11,8 @@ FPS = 60
 TICK = 1/FPS
 DOT_RADIUS = 20
 HALF_RADIUS = DOT_RADIUS / 2
+
+PI = math.pi
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -47,7 +48,7 @@ class Dot:
         self.velocity = np.array([0, 0])
         self.maxSpeed = np.random.random() * 300 + 300
         self.steer_strength = np.random.random() + 10
-        self.color = GREEN
+        self.color = WHITE
         self.radius = 10
 
     @property
@@ -117,18 +118,15 @@ def main():
 
     def redraw_window():
         for dot in dot_controller:
-            # pygame.draw.circle(screen, GREEN, dot_controller.target,
-            #                   dot_controller.accuracy, 1)
+            pygame.draw.circle(screen, GREEN, dot_controller.target,
+                               dot_controller.accuracy, 1)
             # pygame.draw.line(screen, GREEN, dot.position,
             #                   dot_controller.target, 1)
-            pygame.draw.circle(screen, dot.color, dot.position, 10)
-            pygame.draw.line(screen, WHITE, [0, 0], dot.position, 1)
-            pygame.draw.line(screen, WHITE, [dot.x, 0], dot.position, 1)
-            pygame.draw.line(screen, WHITE, [0, dot.y], dot.position, 1)
-            print(dot.cos)
-            # pygame.draw.line(screen, dot.color, dot.position,
-            #                 (dot.velocity[0]/8 + dot.x,
-            #                  dot.velocity[1]/8 + dot.y), 5)
+            pygame.draw.circle(screen, dot.color, dot.position, 10, 1)
+            atan = math.atan2(
+                dot_controller.target[1]-dot.y, dot_controller.target[0]-dot.x)
+            pygame.draw.line(screen, dot.color, dot.position,
+                             (dot.x+math.cos(atan)*40, dot.y+math.sin(atan)*40), 1)
         pygame.display.update()
 
     ticker = 1
