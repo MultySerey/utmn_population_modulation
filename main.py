@@ -47,8 +47,8 @@ class Dot:
         self.y: float = np.random.random() * 540 + 50
         self.velocity = np.array([0, 0])
         self.maxSpeed = np.random.random() * 300 + 300
-        self.steer_strength = np.random.random() + 10
-        self.color = WHITE
+        self.steer_strength = np.random.random() * 5+5
+        self.color = np.random.random(3) * 200 + 50
         self.radius = 10
 
     @property
@@ -112,7 +112,7 @@ clock = pygame.time.Clock()
 
 
 def main():
-    dot_controller = DotController(1)
+    dot_controller = DotController(50)
 
     running = True
 
