@@ -19,25 +19,23 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
+TARGET = True
+
 
 def vector_length(v: np.ndarray) -> float:
     return np.sqrt(v[0] ** 2 + v[1] ** 2)
 
 
-def clamp_magnitude(vector, max_length):
-    sqrmag: float = vector_length(np.array(vector))
-    if sqrmag > max_length ** 2:
-        mag: float = np.sqrt(sqrmag)
-        normal_x = vector[0] / mag
-        normal_y = vector[1] / mag
-        return [normal_x * max_length, normal_y * max_length]
+def clamp_magnitude(vector: np.ndarray, max_length):
+    sqrmag = vector_length(vector)
+    if sqrmag > (max_length ** 2):
+        vector /= np.sqrt(sqrmag)
+        return vector*max_length
     return vector
 
 
-def normalize(position: np.ndarray, target: np.ndarray):
-    delta_pos = target - position
-    distance = vector_length(delta_pos)
-    return delta_pos / distance
+def normalize(delta_pos: np.ndarray):
+    return delta_pos / vector_length(delta_pos)
 
 
 def insideUnitCircle():
@@ -48,18 +46,32 @@ def insideUnitCircle():
 
 class Dot:
     def __init__(self) -> None:
-        self.x: float = np.random.random() * 540 + 50
-        self.y: float = np.random.random() * 540 + 50
-        self.velocity = np.array([0, 0])
-        self.maxSpeed = np.random.random() * 300 + 300
-        self.steer_strength = np.random.random() * 5+5
+        self.position = np.random.random(2) * 540 + 50
+        self.velocity = np.random.random(2) * 300
         self.color = np.random.random(3) * 200 + 50
         self.radius = 10
-        self.wander = 1
+        self.score = 0
+        self.maxSpeed = np.random.random(2) * 300 + 300
+        self.steer_strength = np.random.random() * 5 + 5
 
     @property
-    def position(self):
-        return [self.x, self.y]
+    def x(self):
+        return self.position[0]
+
+    @x.setter
+    def x(self, value):
+        self.position[0] = value
+
+    @property
+    def y(self):
+        return self.position[1]
+
+    @y.setter
+    def y(self, value):
+        self.position[1] = value
+
+    def overlaps(self, other):
+        return np.hypot(*(self.r - other.r)) < self.radius + other.radius
 
 
 class Obstruction:
@@ -94,37 +106,44 @@ class DotController:
             raise StopIteration
 
     def random_target(self):
-        new = None
-        check_list = []
-        while True:
-            new = np.random.random(2) * 540 + 50
-            for obs in self.obs_list:
-                if not (obs.start_pos[0] < new[0] < obs.end_pos[0] and obs.start_pos[1] < new[1] < obs.end_pos[1]):
-                    check_list.append(True)
-            if len(check_list) == len(self.obs_list):
-                break
-        return new
+        return np.random.random(2) * 540 + 50
 
     def update(self):
         for dot in self.dot_list:
-            distance = vector_length(
-                np.array(self.target) - np.array(dot.position))
+            if TARGET:
+                distance = vector_length(self.target - dot.position)
 
-            if distance < self.accuracy:
-                self.target = self.random_target()
+                if distance < self.accuracy:
+                    self.target = self.random_target()
+                    dot.score += 1
 
-            desired_direction = normalize(
-                np.array(self.target), np.array(dot.position))
+                desired_direction = normalize(self.target - dot.position)
 
-            des_velocity = desired_direction * dot.maxSpeed * -1
-            des_steer = (des_velocity - dot.velocity) * dot.steer_strength
-            acceleration = np.array(clamp_magnitude(
-                des_steer, dot.steer_strength))
+                des_velocity = desired_direction * dot.maxSpeed
+                des_steer = (des_velocity - dot.velocity) * dot.steer_strength
+                acceleration = np.array(clamp_magnitude(
+                    des_steer, dot.steer_strength))
 
-            dot.velocity = dot.velocity + acceleration * TICK
+                dot.velocity = dot.velocity + acceleration * TICK
 
             dot.x += dot.velocity[0] * TICK
             dot.y += dot.velocity[1] * TICK
+
+            if dot.x-dot.radius < 0:
+                dot.x = dot.radius
+                dot.velocity[0] *= -1
+
+            if dot.y-dot.radius < 0:
+                dot.y = dot.radius
+                dot.velocity[1] *= -1
+
+            if dot.x+dot.radius > WIDTH:
+                dot.x = WIDTH-dot.radius
+                dot.velocity[0] *= -1
+
+            if dot.y+dot.radius > HEIGHT:
+                dot.y = HEIGHT-dot.radius
+                dot.velocity[1] *= -1
 
 
 pygame.init()
@@ -148,11 +167,10 @@ def main():
             pygame.draw.circle(screen, GREEN, dot_controller.target,
                                dot_controller.accuracy, 1)
 
-            pygame.draw.circle(screen, dot.color, dot.position, 10, 1)
-            atan = np.arctan2(
-                dot_controller.target[1]-dot.y, dot_controller.target[0]-dot.x)
+            pygame.draw.circle(screen, dot.color, dot.position, 10, 2)
+            atan = np.arctan2(dot.velocity[1], dot.velocity[0])
             pygame.draw.line(screen, dot.color, dot.position,
-                             (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 1)
+                             (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
         pygame.display.update()
 
     ticker = 1
