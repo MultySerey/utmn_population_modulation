@@ -163,8 +163,9 @@ def redraw_window():
     #        o.start_pos[1], o.end_pos[0]], o.end_pos, [
     #        o.end_pos[1], o.start_pos[0]]])
     for dot in dot_controller:
-        pygame.draw.circle(screen, GREEN, dot_controller.target,
-                           dot_controller.accuracy, 1)
+        if TARGET:
+            pygame.draw.circle(screen, GREEN, dot_controller.target,
+                               dot_controller.accuracy, 1)
 
         pygame.draw.circle(screen, dot.color, dot.position, 10, 2)
         atan = np.arctan2(dot.velocity[1], dot.velocity[0])
