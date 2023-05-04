@@ -165,7 +165,7 @@ clock = pygame.time.Clock()
 
 TARGET = False
 obs = [Obstruction(240, 240, 400, 400)]
-dot_controller = DotController(20, obs)
+dot_controller = DotController(50, obs)
 
 running = True
 
