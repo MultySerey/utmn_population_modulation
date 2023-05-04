@@ -170,8 +170,8 @@ def redraw_window():
 
         pygame.draw.circle(screen, dot.color, dot.position, 10, 2)
         atan = np.arctan2(dot.velocity[1], dot.velocity[0])
-        pygame.draw.line(screen, dot.color, dot.position,
-                         (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
+        # pygame.draw.line(screen, dot.color, dot.position,
+        #                 (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
     pygame.display.update()
 
 
