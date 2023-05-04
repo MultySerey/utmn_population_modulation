@@ -19,8 +19,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-TARGET = True
-
 
 def vector_length(v: np.ndarray) -> float:
     return np.sqrt(v[0] ** 2 + v[1] ** 2)
@@ -47,7 +45,7 @@ def insideUnitCircle():
 class Dot:
     def __init__(self) -> None:
         self.position = np.random.random(2) * 540 + 50
-        self.velocity = np.random.random(2) * 300
+        self.velocity = (np.random.random(2)-0.5) * 300
         self.color = np.random.random(3) * 200 + 50
         self.radius = 10
         self.score = 0
@@ -81,7 +79,7 @@ class Obstruction:
 
 
 class DotController:
-    def __init__(self, dot_amount: int, obs_list: typing.List[Obstruction]) -> None:
+    def __init__(self, dot_amount: int, obs_list: typing.List[Obstruction]):
         self.dot_list: typing.List[Dot] = [Dot() for _ in range(dot_amount)]
         self.accuracy = 20.0
         self.obs_list = obs_list
@@ -152,46 +150,45 @@ pygame.display.set_caption("My Game")
 clock = pygame.time.Clock()
 
 
-def main():
-    obs = [Obstruction(240, 240, 400, 400)]
-    dot_controller = DotController(50, obs)
+TARGET = False
+obs = [Obstruction(240, 240, 400, 400)]
+dot_controller = DotController(50, obs)
 
-    running = True
-
-    def redraw_window():
-        # for o in obs:
-        #    pygame.draw.lines(screen, RED, True, [o.start_pos, [
-        #        o.start_pos[1], o.end_pos[0]], o.end_pos, [
-        #        o.end_pos[1], o.start_pos[0]]])
-        for dot in dot_controller:
-            pygame.draw.circle(screen, GREEN, dot_controller.target,
-                               dot_controller.accuracy, 1)
-
-            pygame.draw.circle(screen, dot.color, dot.position, 10, 2)
-            atan = np.arctan2(dot.velocity[1], dot.velocity[0])
-            pygame.draw.line(screen, dot.color, dot.position,
-                             (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
-        pygame.display.update()
-
-    ticker = 1
-    while running:
-        clock.tick(FPS)
-        ticker += 1
-
-        redraw_window()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                ticker = 1
-
-        dot_controller.update()
-
-        screen.fill(BLACK)
-
-    pygame.quit()
+running = True
 
 
-if __name__ == "__main__":
-    main()
+def redraw_window():
+    # for o in obs:
+    #    pygame.draw.lines(screen, RED, True, [o.start_pos, [
+    #        o.start_pos[1], o.end_pos[0]], o.end_pos, [
+    #        o.end_pos[1], o.start_pos[0]]])
+    for dot in dot_controller:
+        pygame.draw.circle(screen, GREEN, dot_controller.target,
+                           dot_controller.accuracy, 1)
+
+        pygame.draw.circle(screen, dot.color, dot.position, 10, 2)
+        atan = np.arctan2(dot.velocity[1], dot.velocity[0])
+        pygame.draw.line(screen, dot.color, dot.position,
+                         (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
+    pygame.display.update()
+
+
+ticker = 1
+while running:
+    clock.tick(FPS)
+    ticker += 1
+
+    redraw_window()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_0:
+                TARGET = not TARGET
+
+    dot_controller.update()
+
+    screen.fill(BLACK)
+
+pygame.quit()
