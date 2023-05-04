@@ -69,8 +69,9 @@ class Dot:
     def y(self, value):
         self.position[1] = value
 
-    # def overlaps(self, other):
-    #    return np.hypot(self.r - other.r) < self.radius + other.radius
+    @property
+    def atan2(self):
+        return np.arctan2(self.velocity[1], self.velocity[0])
 
 
 class Obstruction:
@@ -131,9 +132,9 @@ class DotController:
                     d = vector_length(dmd)
                     if d < dot.radius+dot2.radius:
                         n = dmd/d
-                        """p = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
-                             dot2.velocity[0]*n[0]-dot2.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
-                        dot.velocity -= p*n*dot.steer_strength"""
+                        # pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
+                        #         dot2.velocity[0]*n[0]-dot2.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
+                        # dot.velocity -= p*n*dot.steer_strength
                         p = (dot.position+dot2.position)*0.5
                         dot.position = p-dot.radius*n
 
@@ -181,9 +182,9 @@ def redraw_window():
                                dot_controller.accuracy, 1)
 
         pygame.draw.circle(screen, dot.color, dot.position, 10, 2)
-        atan = np.arctan2(dot.velocity[1], dot.velocity[0])
         pygame.draw.line(screen, dot.color, dot.position,
-                         (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
+                         (dot.x+np.cos(dot.atan2)*40,
+                          dot.y+np.sin(dot.atan2)*40), 2)
     pygame.display.update()
 
 
