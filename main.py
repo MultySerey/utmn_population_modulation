@@ -51,6 +51,7 @@ class Dot:
         self.score = 0
         self.maxSpeed = np.random.random(2) * 300 + 300
         self.steer_strength = np.random.random() * 5 + 5
+        self.angle = np.random.random()*360
 
     @property
     def x(self):
@@ -79,10 +80,10 @@ class Obstruction:
 
 
 class DotController:
-    def __init__(self, dot_amount: int, obs_list: typing.List[Obstruction]):
+    def __init__(self, dot_amount: int, obs_list):
         self.dot_list: typing.List[Dot] = [Dot() for _ in range(dot_amount)]
+        self.obs_list: typing.List[Obstruction] = obs_list
         self.accuracy = 20.0
-        self.obs_list = obs_list
         self.target = self.random_target()
 
     def __len__(self):
