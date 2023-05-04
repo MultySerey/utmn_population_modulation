@@ -69,8 +69,8 @@ class Dot:
     def y(self, value):
         self.position[1] = value
 
-    def overlaps(self, other):
-        return np.hypot(*(self.r - other.r)) < self.radius + other.radius
+    # def overlaps(self, other):
+    #    return np.hypot(self.r - other.r) < self.radius + other.radius
 
 
 class Obstruction:
