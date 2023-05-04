@@ -125,6 +125,18 @@ class DotController:
 
                 dot.velocity = dot.velocity + acceleration * TICK
 
+            for dot2 in self.dot_list:
+                if not dot2 == dot:
+                    dmd = dot2.position-dot.position
+                    d = vector_length(dmd)
+                    if d < dot.radius+dot2.radius:
+                        n = dmd/d
+                        """p = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
+                             dot2.velocity[0]*n[0]-dot2.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
+                        dot.velocity -= p*n*dot.steer_strength"""
+                        p = (dot.position+dot2.position)*0.5
+                        dot.position = p-dot.radius*n
+
             dot.x += dot.velocity[0] * TICK
             dot.y += dot.velocity[1] * TICK
 
@@ -153,7 +165,7 @@ clock = pygame.time.Clock()
 
 TARGET = False
 obs = [Obstruction(240, 240, 400, 400)]
-dot_controller = DotController(50, obs)
+dot_controller = DotController(20, obs)
 
 running = True
 
@@ -170,8 +182,8 @@ def redraw_window():
 
         pygame.draw.circle(screen, dot.color, dot.position, 10, 2)
         atan = np.arctan2(dot.velocity[1], dot.velocity[0])
-        # pygame.draw.line(screen, dot.color, dot.position,
-        #                 (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
+        pygame.draw.line(screen, dot.color, dot.position,
+                         (dot.x+np.cos(atan)*40, dot.y+np.sin(atan)*40), 2)
     pygame.display.update()
 
 
