@@ -20,12 +20,16 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
 
+def sqr_mag(v: np.ndarray) -> float:
+    return v[0] ** 2 + v[1] ** 2
+
+
 def vector_length(v: np.ndarray) -> float:
-    return np.sqrt(v[0] ** 2 + v[1] ** 2)
+    return np.sqrt(sqr_mag(v))
 
 
 def clamp_magnitude(vector: np.ndarray, max_length):
-    sqrmag = vector_length(vector)
+    sqrmag = sqr_mag(vector)
     if sqrmag > (max_length ** 2):
         vector /= np.sqrt(sqrmag)
         return vector*max_length
@@ -49,8 +53,8 @@ class Dot:
         self.color = np.random.random(3) * 200 + 50
         self.radius = 10
         self.score = 0
-        self.maxSpeed = np.random.random(2) * 300 + 300
-        self.steer_strength = np.random.random() * 5 + 5
+        self.maxSpeed = np.random.random() * 300 + 300
+        self.steer_strength = np.random.random() * 300 + 300
         self.angle = np.random.random()*360
         self.ill_radius = 20
         self.is_ill = bool(np.around(np.random.random()))
@@ -178,7 +182,7 @@ clock = pygame.time.Clock()
 
 TARGET = False
 obs = [Obstruction(240, 240, 400, 400)]
-dot_controller = DotController(50, obs)
+dot_controller = DotController(10, obs)
 
 running = True
 
