@@ -116,6 +116,18 @@ class DotController:
                         if dot2.is_ill:
                             dot.is_ill = True
 
+    def dot_by_dot_collision(self, dot, other):
+        dmd = other.position-dot.position
+        d = vector_length(dmd)
+        if d < dot.radius+other.radius:
+            n = dmd/d
+            # другая коллизия
+            """pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
+                     other.velocity[0]*n[0]-other.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
+            dot.velocity -= pv*n*dot.steer_strength"""
+            p = (dot.position+other.position)*0.5
+            dot.position = p-dot.radius*n
+
     def update(self):
         for dot in self.dot_list:
             if TARGET:
@@ -136,15 +148,7 @@ class DotController:
 
             for dot2 in self.dot_list:
                 if not dot2 == dot:
-                    dmd = dot2.position-dot.position
-                    d = vector_length(dmd)
-                    if d < dot.radius+dot2.radius:
-                        n = dmd/d
-                        # pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
-                        #         dot2.velocity[0]*n[0]-dot2.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
-                        # dot.velocity -= pv*n*dot.steer_strength
-                        p = (dot.position+dot2.position)*0.5
-                        dot.position = p-dot.radius*n
+                    self.dot_by_dot_collision(dot, dot2)
 
             dot.x += dot.velocity[0] * TICK
             dot.y += dot.velocity[1] * TICK
@@ -181,10 +185,6 @@ running = True
 
 
 def redraw_window():
-    # for o in obs:
-    #    pygame.draw.lines(screen, RED, True, [o.start_pos, [
-    #        o.start_pos[1], o.end_pos[0]], o.end_pos, [
-    #        o.end_pos[1], o.start_pos[0]]])
     for dot in dot_controller:
         if TARGET:
             pygame.draw.circle(screen, GREEN, dot_controller.target*640,
