@@ -6,6 +6,7 @@ import pygame
 # from Vector2 import Vector2
 
 WIDTH, HEIGHT = 640, 640
+MIN_W_H = min(WIDTH, HEIGHT)
 FPS = 60
 TICK = 1/FPS
 
@@ -90,9 +91,49 @@ class Dot:
         return np.arctan2(self.velocity[1], self.velocity[0])
 
 
-class Targer:
-    def __init__():
-        pass
+class Target:
+    def __init__(self, id: int):
+        self.id = id
+        self.position = np.zeros(2)
+
+    @property
+    def x(self):
+        return self.position[0]
+
+    @x.setter
+    def x(self, value):
+        self.position[0] = value
+
+    @property
+    def y(self):
+        return self.position[1]
+
+    @y.setter
+    def y(self, value):
+        self.position[1] = value
+
+
+class TargetList():
+    def __init__(self, amount: int) -> None:
+        self.target_list: typing.List[Target] = [Dot(i) for i in range(amount)]
+
+    def __len__(self):
+        return len(self.target_list)
+
+    def __getitem__(self, item):
+        return self.target_list[item]
+
+    def __iter__(self):
+        self.iter = 0
+        return self
+
+    def __next__(self):
+        if self.iter < len(self.target_list):
+            out = self.target_list[self.iter]
+            self.iter += 1
+            return out
+        else:
+            raise StopIteration
 
 
 class DotController:
@@ -200,20 +241,21 @@ running = True
 
 
 def redraw_window():
+    pygame.draw.rect(screen, (100, 100, 100), (0, 0, MIN_W_H, MIN_W_H), 1)
     for dot in dot_controller:
         if TARGET:
             pygame.draw.circle(screen,
                                GREEN,
-                               dot_controller.target*640,
-                               dot_controller.accuracy*640,
+                               dot_controller.target*MIN_W_H,
+                               dot_controller.accuracy*MIN_W_H,
                                1)
 
         if dot.is_ill:
             red_col = int(np.around(200*dot.is_ill))
             pygame.draw.circle(screen,
                                (red_col, 0, 0),
-                               dot.position * 640,
-                               dot.radius*640)
+                               dot.position * MIN_W_H,
+                               dot.radius*MIN_W_H)
 
         """pygame.draw.circle(screen,
                            (50, 50, 50),
@@ -221,14 +263,15 @@ def redraw_window():
                            dot.ill_radius*640, 2)"""
         pygame.draw.circle(screen,
                            dot.color,
-                           dot.position * 640,
-                           dot.radius * 640,
+                           dot.position * MIN_W_H,
+                           dot.radius * MIN_W_H,
                            2)
+
         pygame.draw.line(screen,
                          dot.color,
-                         dot.position*640,
-                         ((dot.x+np.cos(dot.atan2)*0.1)*640,
-                          (dot.y+np.sin(dot.atan2)*0.1)*640),
+                         dot.position*MIN_W_H,
+                         ((dot.x+np.cos(dot.atan2)*0.1)*MIN_W_H,
+                          (dot.y+np.sin(dot.atan2)*0.1)*MIN_W_H),
                          2)
     pygame.display.update()
 
