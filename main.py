@@ -51,12 +51,11 @@ class Dot:
         self.velocity = (np.random.random(2)-0.5)*0.5
         self.color = WHITE
         self.radius = 0.02
-        self.score = 0
         self.maxSpeed = np.random.random()
         self.steer_strength = np.random.random()+2
-        self.angle = np.random.random()*360
         self.ill_radius = 0.04
         self._is_ill = np.around(np.random.random(), decimals=2)
+        self.target = np.zeros(2)
 
     @property
     def x(self):
@@ -89,6 +88,11 @@ class Dot:
     @property
     def atan2(self):
         return np.arctan2(self.velocity[1], self.velocity[0])
+
+
+class Targer:
+    def __init__():
+        pass
 
 
 class DotController:
@@ -159,8 +163,7 @@ class DotController:
                 distance = vector_length(self.target - dot.position)
 
                 if distance < self.accuracy:
-                    self.target = self.random_target()
-                    dot.score += 1
+                    dot.target = self.random_target()
 
                 desired_direction = normalize(self.target - dot.position)
 
