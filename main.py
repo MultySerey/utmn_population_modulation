@@ -49,15 +49,15 @@ def insideUnitCircle():
 class Dot:
     def __init__(self) -> None:
         self.position = np.random.random(2)
-        self.velocity = (np.random.random(2)-0.5)
+        self.velocity = (np.random.random(2)-0.5)*0.5
         self.color = np.random.random(3) * 200 + 50
         self.radius = 0.02
         self.score = 0
         self.maxSpeed = np.random.random()
         self.steer_strength = np.random.random()+2
         self.angle = np.random.random()*360
-        self.ill_radius = 20
-        self.is_ill = bool(np.around(np.random.random()))
+        self.ill_radius = 0.04
+        self._is_ill = np.around(np.random.random(), decimals=2)
 
     @property
     def x(self):
@@ -74,6 +74,16 @@ class Dot:
     @y.setter
     def y(self, value):
         self.position[1] = value
+
+    @property
+    def is_ill(self):
+        return self._is_ill
+
+    @is_ill.setter
+    def is_ill(self, value):
+        self._is_ill = value
+        if self._is_ill < 0:
+            self.is_ill = 0
 
     @property
     def atan2(self):
@@ -107,26 +117,40 @@ class DotController:
     def random_target(self):
         return np.random.random(2)
 
-    def is_ill(self):
-        for dot in self.dot_list:
-            for dot2 in self.dot_list:
-                if not dot2 == dot:
-                    d = vector_length(dot2.position-dot.position)
-                    if d < dot.ill_radius+dot2.ill_radius:
-                        if dot2.is_ill:
-                            dot.is_ill = True
+    def is_ill(self, dot: Dot, other: Dot):
+        d = vector_length(other.position-dot.position)
+        if d < dot.ill_radius+other.ill_radius:
+            if other.is_ill:
+                dot.is_ill = (dot.is_ill+other.is_ill)/2
 
-    def dot_by_dot_collision(self, dot, other):
+    def dot_by_dot_collision(self, dot: Dot, other: Dot):
         dmd = other.position-dot.position
         d = vector_length(dmd)
         if d < dot.radius+other.radius:
             n = dmd/d
+            p = (dot.position+other.position)*0.5
+            dot.position = p-dot.radius*n
             # другая коллизия
             """pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
                      other.velocity[0]*n[0]-other.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
             dot.velocity -= pv*n*dot.steer_strength"""
-            p = (dot.position+other.position)*0.5
-            dot.position = p-dot.radius*n
+
+    def wall_collision(self, dot: Dot):
+        if dot.x-dot.radius < 0:
+            dot.x = dot.radius
+            dot.velocity[0] *= -1
+
+        if dot.y-dot.radius < 0:
+            dot.y = dot.radius
+            dot.velocity[1] *= -1
+
+        if dot.x+dot.radius > 1:
+            dot.x = 1-dot.radius
+            dot.velocity[0] *= -1
+
+        if dot.y+dot.radius > 1:
+            dot.y = 1-dot.radius
+            dot.velocity[1] *= -1
 
     def update(self):
         for dot in self.dot_list:
@@ -146,30 +170,17 @@ class DotController:
 
                 dot.velocity = dot.velocity + acceleration * TICK
 
+            dot.is_ill -= 0.001
+
             for dot2 in self.dot_list:
                 if not dot2 == dot:
                     self.dot_by_dot_collision(dot, dot2)
+                    self.is_ill(dot, dot2)
 
             dot.x += dot.velocity[0] * TICK
             dot.y += dot.velocity[1] * TICK
 
-            if dot.x-dot.radius < 0:
-                dot.x = dot.radius
-                dot.velocity[0] *= -1
-
-            if dot.y-dot.radius < 0:
-                dot.y = dot.radius
-                dot.velocity[1] *= -1
-
-            if dot.x+dot.radius > 1:
-                dot.x = 1-dot.radius
-                dot.velocity[0] *= -1
-
-            if dot.y+dot.radius > 1:
-                dot.y = 1-dot.radius
-                dot.velocity[1] *= -1
-            print(dot.x, dot.y, end='\r')
-        self.is_ill()
+            self.wall_collision(dot)
 
 
 pygame.init()
@@ -191,8 +202,9 @@ def redraw_window():
                                dot_controller.accuracy*640, 1)
 
         if dot.is_ill:
-            pass
-            # pygame.draw.circle(screen, (200, 0, 0), dot.position, dot.radius)
+            red_col = int(np.around(200*dot.is_ill))
+            pygame.draw.circle(screen, (red_col, 0, 0),
+                               dot.position * 640, dot.radius*640)
 
         pygame.draw.circle(screen, dot.color, dot.position *
                            640, dot.radius*640, 2)
