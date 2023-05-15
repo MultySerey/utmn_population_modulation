@@ -45,10 +45,11 @@ def insideUnitCircle():
 
 
 class Dot:
-    def __init__(self) -> None:
+    def __init__(self, id) -> None:
+        self.id = id
         self.position = np.random.random(2)
         self.velocity = (np.random.random(2)-0.5)*0.5
-        self.color = np.random.random(3) * 200 + 50
+        self.color = WHITE
         self.radius = 0.02
         self.score = 0
         self.maxSpeed = np.random.random()
@@ -92,8 +93,8 @@ class Dot:
 
 class DotController:
     def __init__(self, dot_amount: int):
-        self.dot_list: typing.List[Dot] = [Dot() for _ in range(dot_amount)]
-        self.accuracy = 0.05
+        self.dot_list: typing.List[Dot] = [Dot(i) for i in range(dot_amount)]
+        self.accuracy = 0.025
         self.target = self.random_target()
 
     def __len__(self):
@@ -131,9 +132,9 @@ class DotController:
             p = (dot.position+other.position)*0.5
             dot.position = p-dot.radius*n
             # другая коллизия
-            """pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
+            pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
                      other.velocity[0]*n[0]-other.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
-            dot.velocity -= pv*n*dot.steer_strength"""
+            dot.velocity -= pv*n*dot.steer_strength*0.5
 
     def wall_collision(self, dot: Dot):
         if dot.x-dot.radius < 0:
@@ -198,21 +199,34 @@ running = True
 def redraw_window():
     for dot in dot_controller:
         if TARGET:
-            pygame.draw.circle(screen, GREEN, dot_controller.target*640,
-                               dot_controller.accuracy*640, 1)
+            pygame.draw.circle(screen,
+                               GREEN,
+                               dot_controller.target*640,
+                               dot_controller.accuracy*640,
+                               1)
 
         if dot.is_ill:
             red_col = int(np.around(200*dot.is_ill))
-            pygame.draw.circle(screen, (red_col, 0, 0),
-                               dot.position * 640, dot.radius*640)
+            pygame.draw.circle(screen,
+                               (red_col, 0, 0),
+                               dot.position * 640,
+                               dot.radius*640)
 
-        pygame.draw.circle(screen, dot.color, dot.position *
-                           640, dot.radius*640, 2)
-        #  pygame.draw.circle(screen, (50, 50, 50),
-        #                   dot.position, dot.ill_radius, 2)
-        pygame.draw.line(screen, dot.color, dot.position*640,
+        pygame.draw.circle(screen,
+                           dot.color,
+                           dot.position * 640,
+                           dot.radius * 640,
+                           2)
+        pygame.draw.circle(screen,
+                           (50, 50, 50),
+                           dot.position,
+                           dot.ill_radius, 2)
+        pygame.draw.line(screen,
+                         dot.color,
+                         dot.position*640,
                          ((dot.x+np.cos(dot.atan2)*0.1)*640,
-                          (dot.y+np.sin(dot.atan2)*0.1)*640), 2)
+                          (dot.y+np.sin(dot.atan2)*0.1)*640),
+                         2)
     pygame.display.update()
 
 
