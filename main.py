@@ -48,13 +48,13 @@ def insideUnitCircle():
 
 class Dot:
     def __init__(self) -> None:
-        self.position = np.random.random(2) * 540 + 50
-        self.velocity = (np.random.random(2)-0.5) * 300
+        self.position = np.random.random(2)
+        self.velocity = (np.random.random(2)-0.5)
         self.color = np.random.random(3) * 200 + 50
-        self.radius = 10
+        self.radius = 0.02
         self.score = 0
-        self.maxSpeed = np.random.random() * 300 + 300
-        self.steer_strength = np.random.random() * 300 + 300
+        self.maxSpeed = np.random.random()
+        self.steer_strength = np.random.random()+2
         self.angle = np.random.random()*360
         self.ill_radius = 20
         self.is_ill = bool(np.around(np.random.random()))
@@ -80,17 +80,10 @@ class Dot:
         return np.arctan2(self.velocity[1], self.velocity[0])
 
 
-class Obstruction:
-    def __init__(self, x0, y0, x1, y1) -> None:
-        self.start_pos = [x0, y0]
-        self.end_pos = [x1, y1]
-
-
 class DotController:
-    def __init__(self, dot_amount: int, obs_list):
+    def __init__(self, dot_amount: int):
         self.dot_list: typing.List[Dot] = [Dot() for _ in range(dot_amount)]
-        self.obs_list: typing.List[Obstruction] = obs_list
-        self.accuracy = 20.0
+        self.accuracy = 0.05
         self.target = self.random_target()
 
     def __len__(self):
@@ -112,7 +105,7 @@ class DotController:
             raise StopIteration
 
     def random_target(self):
-        return np.random.random(2) * 540 + 50
+        return np.random.random(2)
 
     def is_ill(self):
         for dot in self.dot_list:
@@ -164,13 +157,14 @@ class DotController:
                 dot.y = dot.radius
                 dot.velocity[1] *= -1
 
-            if dot.x+dot.radius > WIDTH:
-                dot.x = WIDTH-dot.radius
+            if dot.x+dot.radius > 1:
+                dot.x = 1-dot.radius
                 dot.velocity[0] *= -1
 
-            if dot.y+dot.radius > HEIGHT:
-                dot.y = HEIGHT-dot.radius
+            if dot.y+dot.radius > 1:
+                dot.y = 1-dot.radius
                 dot.velocity[1] *= -1
+            print(dot.x, dot.y, end='\r')
         self.is_ill()
 
 
@@ -181,8 +175,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-obs = [Obstruction(240, 240, 400, 400)]
-dot_controller = DotController(10, obs)
+dot_controller = DotController(10)
 
 running = True
 
@@ -194,19 +187,20 @@ def redraw_window():
     #        o.end_pos[1], o.start_pos[0]]])
     for dot in dot_controller:
         if TARGET:
-            pygame.draw.circle(screen, GREEN, dot_controller.target,
-                               dot_controller.accuracy, 1)
+            pygame.draw.circle(screen, GREEN, dot_controller.target*640,
+                               dot_controller.accuracy*640, 1)
 
         if dot.is_ill:
             pass
             # pygame.draw.circle(screen, (200, 0, 0), dot.position, dot.radius)
 
-        pygame.draw.circle(screen, dot.color, dot.position, dot.radius, 2)
+        pygame.draw.circle(screen, dot.color, dot.position *
+                           640, dot.radius*640, 2)
         #  pygame.draw.circle(screen, (50, 50, 50),
         #                   dot.position, dot.ill_radius, 2)
-        pygame.draw.line(screen, dot.color, dot.position,
-                         (dot.x+np.cos(dot.atan2)*40,
-                          dot.y+np.sin(dot.atan2)*40), 2)
+        pygame.draw.line(screen, dot.color, dot.position*640,
+                         ((dot.x+np.cos(dot.atan2)*0.1)*640,
+                          (dot.y+np.sin(dot.atan2)*0.1)*640), 2)
     pygame.display.update()
 
 
