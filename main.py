@@ -45,7 +45,7 @@ def insideUnitCircle():
 
 
 class Dot:
-    def __init__(self, id) -> None:
+    def __init__(self, id: int) -> None:
         self.id = id
         self.position = np.random.random(2)
         self.velocity = (np.random.random(2)-0.5)*0.5
@@ -133,7 +133,7 @@ class DotController:
             dot.position = p-dot.radius*n
             # другая коллизия
             pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
-                     other.velocity[0]*n[0]-other.velocity[1]*n[1]))/(dot.steer_strength+other.steer_strength)
+                     other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)
             dot.velocity -= pv*n*dot.steer_strength*0.5
 
     def wall_collision(self, dot: Dot):
@@ -191,7 +191,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(100)
+dot_controller = DotController(10)
 
 running = True
 
