@@ -133,7 +133,7 @@ class DotController:
             dot.position = p-dot.radius*n
             # другая коллизия
             pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
-                     other.velocity[0]*n[0]-other.velocity[1]*n[1]))/(dot.steer_strength+dot.steer_strength)
+                     other.velocity[0]*n[0]-other.velocity[1]*n[1]))/(dot.steer_strength+other.steer_strength)
             dot.velocity -= pv*n*dot.steer_strength*0.5
 
     def wall_collision(self, dot: Dot):
@@ -191,7 +191,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(10)
+dot_controller = DotController(100)
 
 running = True
 
@@ -212,15 +212,15 @@ def redraw_window():
                                dot.position * 640,
                                dot.radius*640)
 
+        """pygame.draw.circle(screen,
+                           (50, 50, 50),
+                           dot.position*640,
+                           dot.ill_radius*640, 2)"""
         pygame.draw.circle(screen,
                            dot.color,
                            dot.position * 640,
                            dot.radius * 640,
                            2)
-        pygame.draw.circle(screen,
-                           (50, 50, 50),
-                           dot.position,
-                           dot.ill_radius, 2)
         pygame.draw.line(screen,
                          dot.color,
                          dot.position*640,
