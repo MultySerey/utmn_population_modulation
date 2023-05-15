@@ -8,8 +8,6 @@ import pygame
 WIDTH, HEIGHT = 640, 640
 FPS = 60
 TICK = 1/FPS
-DOT_RADIUS = 20
-HALF_RADIUS = DOT_RADIUS / 2
 
 PI = np.pi
 
@@ -84,6 +82,8 @@ class Dot:
         self._is_ill = value
         if self._is_ill < 0:
             self.is_ill = 0
+        if self._is_ill > 1:
+            self.is_ill = 1
 
     @property
     def atan2(self):
@@ -121,7 +121,7 @@ class DotController:
         d = vector_length(other.position-dot.position)
         if d < dot.ill_radius+other.ill_radius:
             if other.is_ill:
-                dot.is_ill = (dot.is_ill+other.is_ill)/2
+                dot.is_ill += (dot.is_ill+other.is_ill)*0.01*np.random.random()
 
     def dot_by_dot_collision(self, dot: Dot, other: Dot):
         dmd = other.position-dot.position
