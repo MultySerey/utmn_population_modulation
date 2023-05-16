@@ -119,7 +119,7 @@ class DotController:
 
     @mode.setter
     def mode(self, value):
-        self._mode = value % 4
+        self._mode = value % 5
         print(self._mode)
 
     def __len__(self):
@@ -190,6 +190,11 @@ class DotController:
                 if self.mode == 3:
                     if distance < self.accuracy:
                         dot.target = np.random.choice(self.target_list)
+                if self.mode == 4:
+                    if distance < self.accuracy:
+                        dot.target_num += 1
+                        dot.target = self.target_list[dot.target_num % len(
+                            self.target_list)]
 
                 desired_direction = normalize(dot.target.position - dot.position)  # noqa
 
