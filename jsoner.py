@@ -123,8 +123,7 @@ class Dot:
     @property
     def direction(self):
         scale = 0.1
-        return np.array([self.x+np.cos(self.atan2)*scale,
-                         self.y+np.sin(self.atan2)*scale])
+        return np.array([self.x+np.cos(self.atan2)*scale, self.y+np.sin(self.atan2)*scale])  # noqa
 
 
 class DotController:
@@ -133,6 +132,7 @@ class DotController:
         self.accuracy = 0.025
         self.target_list = TargetList(target_amount)
         self.tick = tick
+        self.mode: int = 0
 
     def __len__(self):
         return len(self.dot_list)
@@ -173,8 +173,7 @@ class DotController:
             p = (dot.position+other.position)*0.5
             dot.position = p-dot.radius*n
             # другая коллизия
-            pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
-                     other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)  # noqa
+            pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] - other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)  # noqa
             dot.velocity -= pv*n*dot.steer_strength*0.5
 
     def wall_collision(self, dot: Dot):
@@ -202,20 +201,17 @@ class DotController:
 
     def update(self):
         for dot in self.dot_list:
-            if True:
-                distance = vector_length(
-                    self.target.position - dot.position)
+            if self.mode != 0:
+                distance = vector_length(dot.target.position - dot.position)
 
                 if distance < self.accuracy:
                     dot.target_num = self.second_movement()
 
-                desired_direction = normalize(
-                    self.target_list[dot.target].position - dot.position)
+                desired_direction = normalize(self.target_list[dot.target].position - dot.position)  # noqa
 
                 des_velocity = desired_direction * dot.maxSpeed
                 des_steer = (des_velocity - dot.velocity) * dot.steer_strength
-                acceleration = np.array(clamp_magnitude(
-                    des_steer, dot.steer_strength))
+                acceleration = np.array(clamp_magnitude(des_steer, dot.steer_strength))  # noqa
 
                 dot.velocity = dot.velocity + acceleration * self.tick
 

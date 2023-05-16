@@ -10,14 +10,14 @@ MIN_W_H = min(WIDTH, HEIGHT)
 FPS = 60
 TICK = 1/FPS
 
-PI = np.pi
-
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
+COLORS = {
+    "white": (255, 255, 255),
+    "black": (0, 0, 0),
+    "red": (255, 0, 0),
+    "green": (0, 255, 0),
+    "blu": (0, 0, 255),
+    "yellow": (255, 255, 0),
+}
 
 
 pygame.init()
@@ -27,7 +27,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(10, 5)
+dot_controller = DotController(10, 5, TICK)
 
 running = True
 
@@ -36,31 +36,23 @@ def redraw_window():
     pygame.draw.rect(screen, (100, 100, 100), (0, 0, MIN_W_H, MIN_W_H), 1)
     if TARGET:
         for t in dot_controller.target_list:
-            pygame.draw.circle(screen, YELLOW, t.position*MIN_W_H,
+            pygame.draw.circle(screen, COLORS["green"], t.position*MIN_W_H,
                                dot_controller.accuracy*MIN_W_H, 1)
     for dot in dot_controller:
         if dot.is_ill:
             red_col = int(np.around(200*dot.is_ill))
-            pygame.draw.circle(screen,
-                               (red_col, 0, 0),
+            pygame.draw.circle(screen, (red_col, 0, 0),
                                dot.position * MIN_W_H,
                                dot.radius*MIN_W_H)
 
-        """pygame.draw.circle(screen,
-                           (50, 50, 50),
+        """pygame.draw.circle(screen, (50, 50, 50),
                            dot.position*640,
-                           dot.ill_radius*640, 2)"""
-        pygame.draw.circle(screen,
-                           dot.color,
-                           dot.position * MIN_W_H,
-                           dot.radius * MIN_W_H,
-                           2)
+                           dot.ill_radius*640, width=2)"""
+        pygame.draw.circle(screen, COLORS["white"], dot.position * MIN_W_H,
+                           dot.radius * MIN_W_H, width=2)
 
-        pygame.draw.line(screen,
-                         dot.color,
-                         dot.position*MIN_W_H,
-                         dot.direction*MIN_W_H,
-                         2)
+        pygame.draw.line(screen, COLORS["white"], dot.position*MIN_W_H,
+                         dot.direction*MIN_W_H, width=2)
     pygame.display.update()
 
 
@@ -82,6 +74,6 @@ while running:
 
     dot_controller.update()
 
-    screen.fill(BLACK)
+    screen.fill(COLORS["black"])
 
 pygame.quit()
