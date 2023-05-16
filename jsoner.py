@@ -31,24 +31,20 @@ def insideUnitCircle():
 
 
 class Target:
-    def __init__(self):
-        self.position = np.random.random(2)
+    def __init__(self, x: float = None, y: float = None):
+        if not x and not y:
+            self.refresh()
+        else:
+            self.x = x
+            self.y = y
 
     @property
-    def x(self):
-        return self.position[0]
+    def position(self):
+        return np.array([self.x, self.y])
 
-    @x.setter
-    def x(self, value):
-        self.position[0] = value
-
-    @property
-    def y(self):
-        return self.position[1]
-
-    @y.setter
-    def y(self, value):
-        self.position[1] = value
+    @position.setter
+    def position(self, value):
+        self.x, self.y = value
 
     def refresh(self):
         self.position = np.random.random(2)
@@ -82,10 +78,10 @@ class Dot:
         self.id = id
         self.position = np.random.random(2)
         self.velocity = (np.random.random(2)-0.5)*0.5
-        self.radius = 0.02
-        self.maxSpeed = np.random.random()*0.5
-        self.steer_strength = np.random.random()*2+2
-        self.ill_radius = 0.04
+        self.radius = 0.01
+        self.maxSpeed = np.random.random()
+        self.steer_strength = np.random.random()*3+2
+        self.ill_radius = 0.02
         self._is_ill = np.around(np.random.random(), decimals=2)
         self.target: Target = Target()
         self.target_num = 0
@@ -124,18 +120,21 @@ class Dot:
 
     @property
     def direction(self):
-        scale = 0.1
+        scale = 0.025
         return np.array([self.x+np.cos(self.atan2)*scale, self.y+np.sin(self.atan2)*scale])  # noqa
 
 
 class DotController:
-    def __init__(self, dot_amount: int, target_amount: int, tick: float):
+    def __init__(self, dot_amount: int, tick: float):
         self.dot_list: typing.List[Dot] = [Dot(i) for i in range(dot_amount)]
-        self.accuracy = 0.025
-        self.target_list = TargetList(target_amount)
+        self.accuracy = 0.05
         self.tick = tick
         self._mode: int = 0
         self.common_target = Target()
+        self.target_list = [Target(0.25, 0.25),
+                            Target(0.75, 0.25),
+                            Target(0.75, 0.75),
+                            Target(0.25, 0.75)]
 
     @property
     def mode(self):
@@ -143,7 +142,7 @@ class DotController:
 
     @mode.setter
     def mode(self, value):
-        self._mode = value % 3
+        self._mode = value % 4
         print(self._mode)
 
     def __len__(self):
@@ -168,7 +167,7 @@ class DotController:
         d = vector_length(other.position-dot.position)
         if d < dot.ill_radius+other.ill_radius:
             if other.is_ill:
-                dot.is_ill += (dot.is_ill+other.is_ill)*0.01*np.random.random()
+                dot.is_ill += (dot.is_ill+other.is_ill)*0.025*np.random.random()
 
     def dot_by_dot_collision(self, dot: Dot, other: Dot):
         dmd = other.position-dot.position
@@ -203,12 +202,16 @@ class DotController:
             if self.mode != 0:
                 distance = vector_length(dot.target.position - dot.position)  # noqa
 
-                if distance < self.accuracy:
-                    if self.mode == 1:
-                        dot.target.refresh()
-                    if self.mode == 2:
+                if self.mode == 1:
+                    if distance < self.accuracy:
+                        dot.target = Target()
+                if self.mode == 2:
+                    if distance < self.accuracy:
                         dot.target = self.common_target
                         self.common_target.refresh()
+                if self.mode == 3:
+                    if distance < self.accuracy:
+                        dot.target = np.random.choice(self.target_list)
 
                 desired_direction = normalize(dot.target.position - dot.position)  # noqa
 
@@ -218,11 +221,11 @@ class DotController:
 
                 dot.velocity = dot.velocity + acceleration * self.tick
 
-            dot.is_ill -= 0.001
+            dot.is_ill -= 0.005
 
             for dot2 in self.dot_list:
                 if not dot2 == dot:
-                    self.dot_by_dot_collision(dot, dot2)
+                    # self.dot_by_dot_collision(dot, dot2)
                     self.is_ill(dot, dot2)
 
             dot.x += dot.velocity[0] * self.tick

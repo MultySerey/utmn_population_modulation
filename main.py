@@ -1,9 +1,7 @@
-import numpy as np
 import pygame
+from numpy import around as nparound
 
 from jsoner import DotController
-
-# from Vector2 import Vector2
 
 WIDTH, HEIGHT = 640, 640
 MIN_W_H = min(WIDTH, HEIGHT)
@@ -27,28 +25,32 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(10, 5, TICK)
+dot_controller = DotController(100, TICK)
 
 running = True
 
 
 def redraw_window():
     pygame.draw.rect(screen, (100, 100, 100), (0, 0, MIN_W_H, MIN_W_H), 1)
-
+    if dot_controller.mode == 3:
+        for target in dot_controller.target_list:
+            pygame.draw.circle(screen, COLORS["green"],
+                               target.position*MIN_W_H,
+                               dot_controller.accuracy*MIN_W_H, 1)
     for dot in dot_controller:
-        if dot_controller.mode != 0:
+        """if dot_controller.mode > 0 and dot_controller.mode != 3:
             pygame.draw.circle(screen, COLORS["green"],
                                dot.target.position*MIN_W_H,
-                               dot_controller.accuracy*MIN_W_H, 1)
+                               dot_controller.accuracy*MIN_W_H, 1)"""
         if dot.is_ill:
-            red_col = int(np.around(200*dot.is_ill))
+            red_col = int(nparound(200*dot.is_ill))
             pygame.draw.circle(screen, (red_col, 0, 0),
                                dot.position * MIN_W_H,
                                dot.radius*MIN_W_H)
 
-        """pygame.draw.circle(screen, (50, 50, 50),
+        pygame.draw.circle(screen, (50, 50, 50),
                            dot.position*640,
-                           dot.ill_radius*640, width=2)"""
+                           dot.ill_radius*640, width=2)
         pygame.draw.circle(screen, COLORS["white"], dot.position * MIN_W_H,
                            dot.radius * MIN_W_H, width=2)
 
