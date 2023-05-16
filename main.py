@@ -1,3 +1,4 @@
+import json
 import typing
 
 import numpy as np
@@ -204,6 +205,8 @@ class DotController:
             dot.velocity[1] *= -1
 
     def update(self):
+        output: dict = {"count": len(self.dot_list)}
+        points: list = []
         for dot in self.dot_list:
             if TARGET:
                 distance = vector_length(
@@ -233,6 +236,17 @@ class DotController:
             dot.y += dot.velocity[1] * TICK
 
             self.wall_collision(dot)
+            points.append({"id": dot.id,
+                           "x": dot.x,
+                          "y": dot.y,
+                           "illness": dot.is_ill})
+        output["points"] = points
+        print(json.dumps(output))
+
+        return json.dumps(output)
+
+    def get(self):
+        pass
 
 
 pygame.init()
@@ -242,7 +256,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(1, 5)
+dot_controller = DotController(10, 5)
 
 running = True
 
