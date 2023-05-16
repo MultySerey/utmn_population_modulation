@@ -34,11 +34,12 @@ running = True
 
 def redraw_window():
     pygame.draw.rect(screen, (100, 100, 100), (0, 0, MIN_W_H, MIN_W_H), 1)
-    if TARGET:
-        for t in dot_controller.target_list:
-            pygame.draw.circle(screen, COLORS["green"], t.position*MIN_W_H,
-                               dot_controller.accuracy*MIN_W_H, 1)
+
     for dot in dot_controller:
+        if dot_controller.mode != 0:
+            pygame.draw.circle(screen, COLORS["green"],
+                               dot.target.position*MIN_W_H,
+                               dot_controller.accuracy*MIN_W_H, 1)
         if dot.is_ill:
             red_col = int(np.around(200*dot.is_ill))
             pygame.draw.circle(screen, (red_col, 0, 0),
@@ -68,7 +69,7 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_0:
-                TARGET = not TARGET
+                dot_controller.mode += 1
             if event.key == pygame.K_n:
                 dot_controller.refresh_targets()
 

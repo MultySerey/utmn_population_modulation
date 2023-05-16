@@ -31,8 +31,7 @@ def insideUnitCircle():
 
 
 class Target:
-    def __init__(self, id: int):
-        self.id = id
+    def __init__(self):
         self.position = np.random.random(2)
 
     @property
@@ -50,6 +49,9 @@ class Target:
     @y.setter
     def y(self, value):
         self.position[1] = value
+
+    def refresh(self):
+        self.position = np.random.random(2)
 
 
 class TargetList():
@@ -81,11 +83,11 @@ class Dot:
         self.position = np.random.random(2)
         self.velocity = (np.random.random(2)-0.5)*0.5
         self.radius = 0.02
-        self.maxSpeed = np.random.random()
-        self.steer_strength = np.random.random()+2
+        self.maxSpeed = np.random.random()*0.5
+        self.steer_strength = np.random.random()*2+2
         self.ill_radius = 0.04
         self._is_ill = np.around(np.random.random(), decimals=2)
-        self.target: Target = None
+        self.target: Target = Target()
         self.target_num = 0
 
     @property
@@ -132,7 +134,17 @@ class DotController:
         self.accuracy = 0.025
         self.target_list = TargetList(target_amount)
         self.tick = tick
-        self.mode: int = 0
+        self._mode: int = 0
+        self.common_target = Target()
+
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        self._mode = value % 3
+        print(self._mode)
 
     def __len__(self):
         return len(self.dot_list)
@@ -151,13 +163,6 @@ class DotController:
             return out
         else:
             raise StopIteration
-
-    def random_target(self):
-        return np.random.random(2)
-
-    def refresh_targets(self):
-        for t in self.target_list:
-            t.position = self.random_target()*0.8+0.1
 
     def is_ill(self, dot: Dot, other: Dot):
         d = vector_length(other.position-dot.position)
@@ -193,21 +198,19 @@ class DotController:
             dot.y = 1-dot.radius
             dot.velocity[1] *= -1
 
-    def second_movement(self):
-        return self.random_target()
-
-    def third_movement(self, dot: Dot):
-        return (dot.target_num+1) % len(self.target_list)
-
     def update(self):
         for dot in self.dot_list:
             if self.mode != 0:
-                distance = vector_length(dot.target.position - dot.position)
+                distance = vector_length(dot.target.position - dot.position)  # noqa
 
                 if distance < self.accuracy:
-                    dot.target_num = self.second_movement()
+                    if self.mode == 1:
+                        dot.target.refresh()
+                    if self.mode == 2:
+                        dot.target = self.common_target
+                        self.common_target.refresh()
 
-                desired_direction = normalize(self.target_list[dot.target].position - dot.position)  # noqa
+                desired_direction = normalize(dot.target.position - dot.position)  # noqa
 
                 des_velocity = desired_direction * dot.maxSpeed
                 des_steer = (des_velocity - dot.velocity) * dot.steer_strength
