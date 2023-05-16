@@ -17,6 +17,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 
 
 def sqr_mag(v: np.ndarray) -> float:
@@ -56,7 +57,7 @@ class Dot:
         self.steer_strength = np.random.random()+2
         self.ill_radius = 0.04
         self._is_ill = np.around(np.random.random(), decimals=2)
-        self.target = np.zeros(2)
+        self.target = 0
 
     @property
     def x(self):
@@ -94,7 +95,7 @@ class Dot:
 class Target:
     def __init__(self, id: int):
         self.id = id
-        self.position = np.zeros(2)
+        self.position = np.random.random(2)
 
     @property
     def x(self):
@@ -137,10 +138,10 @@ class TargetList():
 
 
 class DotController:
-    def __init__(self, dot_amount: int):
+    def __init__(self, dot_amount: int, target_amount: int):
         self.dot_list: typing.List[Dot] = [Dot(i) for i in range(dot_amount)]
         self.accuracy = 0.025
-        self.target = self.random_target()
+        self.target_list = TargetList(target_amount)
 
     def __len__(self):
         return len(self.dot_list)
@@ -163,6 +164,10 @@ class DotController:
     def random_target(self):
         return np.random.random(2)
 
+    def refresh_targets(self):
+        for t in self.target_list:
+            t.position = self.random_target()*0.8+0.1
+
     def is_ill(self, dot: Dot, other: Dot):
         d = vector_length(other.position-dot.position)
         if d < dot.ill_radius+other.ill_radius:
@@ -178,7 +183,7 @@ class DotController:
             dot.position = p-dot.radius*n
             # другая коллизия
             pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] -
-                     other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)
+                     other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)  # noqa
             dot.velocity -= pv*n*dot.steer_strength*0.5
 
     def wall_collision(self, dot: Dot):
@@ -201,12 +206,14 @@ class DotController:
     def update(self):
         for dot in self.dot_list:
             if TARGET:
-                distance = vector_length(self.target - dot.position)
+                distance = vector_length(
+                    self.target_list[dot.target].position - dot.position)
 
                 if distance < self.accuracy:
-                    dot.target = self.random_target()
+                    dot.target = (dot.target+1) % len(self.target_list)
 
-                desired_direction = normalize(self.target - dot.position)
+                desired_direction = normalize(
+                    self.target_list[dot.target].position - dot.position)
 
                 des_velocity = desired_direction * dot.maxSpeed
                 des_steer = (des_velocity - dot.velocity) * dot.steer_strength
@@ -235,21 +242,18 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(10)
+dot_controller = DotController(1, 5)
 
 running = True
 
 
 def redraw_window():
     pygame.draw.rect(screen, (100, 100, 100), (0, 0, MIN_W_H, MIN_W_H), 1)
+    if TARGET:
+        for t in dot_controller.target_list:
+            pygame.draw.circle(screen, YELLOW, t.position*MIN_W_H,
+                               dot_controller.accuracy*MIN_W_H, 1)
     for dot in dot_controller:
-        if TARGET:
-            pygame.draw.circle(screen,
-                               GREEN,
-                               dot_controller.target*MIN_W_H,
-                               dot_controller.accuracy*MIN_W_H,
-                               1)
-
         if dot.is_ill:
             red_col = int(np.around(200*dot.is_ill))
             pygame.draw.circle(screen,
@@ -289,6 +293,8 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_0:
                 TARGET = not TARGET
+            if event.key == pygame.K_n:
+                dot_controller.refresh_targets()
 
     dot_controller.update()
 
