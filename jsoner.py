@@ -50,29 +50,6 @@ class Target:
         self.position = np.random.random(2)
 
 
-class TargetList():
-    def __init__(self, amount: int) -> None:
-        self.target_list: typing.List[Target] = [Dot(i) for i in range(amount)]
-
-    def __len__(self):
-        return len(self.target_list)
-
-    def __getitem__(self, item):
-        return self.target_list[item]
-
-    def __iter__(self):
-        self.iter = 0
-        return self
-
-    def __next__(self):
-        if self.iter < len(self.target_list):
-            out = self.target_list[self.iter]
-            self.iter += 1
-            return out
-        else:
-            raise StopIteration
-
-
 class Dot:
     def __init__(self, id: int) -> None:
         self.id = id
@@ -167,7 +144,8 @@ class DotController:
         d = vector_length(other.position-dot.position)
         if d < dot.ill_radius+other.ill_radius:
             if other.is_ill:
-                dot.is_ill += (dot.is_ill+other.is_ill)*0.025*np.random.random()
+                dot.is_ill += (dot.is_ill+other.is_ill) * \
+                    0.025*np.random.random()
 
     def dot_by_dot_collision(self, dot: Dot, other: Dot):
         dmd = other.position-dot.position
