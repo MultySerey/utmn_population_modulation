@@ -43,7 +43,7 @@ class Target:
         self.x, self.y = value
 
     def refresh(self):
-        self.position = np.random.random(2)
+        self.position = np.random.random(2)*0.8+0.1
 
 
 class Dot:
@@ -110,7 +110,7 @@ class DotController:
         pi_over_num = np.pi/self.target_num
         self.target_list = [
             Target(np.cos(pi_over_num*i*2+1)*ONE_THIRD+0.5,
-                   np.sin(pi_over_num*i*2+1)*ONE_THIRD+0.5) for i in range(self.target_num)]
+                   np.sin(pi_over_num*i*2+1)*ONE_THIRD+0.5) for i in range(self.target_num)]  # noqa
         for dot in self.dot_list:
             self.small_list(dot)
 
@@ -142,13 +142,14 @@ class DotController:
         else:
             raise StopIteration
 
+    # заражение
     def is_ill(self, dot: Dot, other: Dot):
         d = vector_length(other.position-dot.position)
         if d < dot.ill_radius+other.ill_radius:
             if other.is_ill:
-                dot.is_ill += (dot.is_ill+other.is_ill) * \
-                    0.025*np.random.random()
+                dot.is_ill += (dot.is_ill+other.is_ill) *0.025*np.random.random()  # noqa
 
+    # коллизия между точками
     def dot_by_dot_collision(self, dot: Dot, other: Dot):
         dmd = other.position-dot.position
         d = vector_length(dmd)
@@ -156,10 +157,11 @@ class DotController:
             n = dmd/d
             p = (dot.position+other.position)*0.5
             dot.position = p-dot.radius*n
-            # другая коллизия
+            # изменение скорости
             pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] - other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)  # noqa
             dot.velocity -= pv*n*dot.steer_strength*0.5
 
+    # коллизия с границами области
     def wall_collision(self, dot: Dot):
         if dot.x-dot.radius < 0:
             dot.x = dot.radius
@@ -181,6 +183,7 @@ class DotController:
             if self.mode == 0:
                 dot.velocity[1] *= -1
 
+    # выбор точек для режима "регулярное посещение заданных точек"
     def small_list(self, dot: Dot):
         dot.small_list = np.random.choice(self.target_list, 2, False)
 
