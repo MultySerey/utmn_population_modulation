@@ -3,6 +3,8 @@ import typing
 
 import numpy as np
 
+ONE_THIRD = 1/3
+
 
 def sqr_mag(v: np.ndarray) -> float:
     return v[0] ** 2 + v[1] ** 2
@@ -108,10 +110,11 @@ class DotController:
         self.tick = tick
         self._mode: int = 0
         self.common_target = Target()
-        self.target_list = [Target(0.25, 0.25),
-                            Target(0.75, 0.25),
-                            Target(0.75, 0.75),
-                            Target(0.25, 0.75)]
+        self.target_num = 6
+        pi_over_num = np.pi/self.target_num
+        self.target_list = [
+            Target(np.cos(pi_over_num*i*2+1)*ONE_THIRD+0.5,
+                   np.sin(pi_over_num*i*2+1)*ONE_THIRD+0.5) for i in range(self.target_num)]
 
     @property
     def mode(self):
