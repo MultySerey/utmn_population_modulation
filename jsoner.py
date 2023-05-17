@@ -64,6 +64,7 @@ class Dot:
         self._is_ill = np.around(np.random.random(), decimals=2)
         self.target: Target = Target()
         self.target_num = 0
+        self.small_list = None
 
     @property
     def x(self):
@@ -111,10 +112,13 @@ class DotController:
         self._mode: int = 0
         self.common_target = Target()
         self.target_num = 6
+        self.ticker = 0
         pi_over_num = np.pi/self.target_num
         self.target_list = [
             Target(np.cos(pi_over_num*i*2+1)*ONE_THIRD+0.5,
                    np.sin(pi_over_num*i*2+1)*ONE_THIRD+0.5) for i in range(self.target_num)]
+        for dot in self.dot_list:
+            self.small_list(dot)
 
     @property
     def mode(self):
@@ -122,7 +126,8 @@ class DotController:
 
     @mode.setter
     def mode(self, value):
-        self._mode = value % 5
+        total_modes = 6
+        self._mode = value % total_modes
         print(self._mode)
 
     def __len__(self):
@@ -178,26 +183,30 @@ class DotController:
             dot.y = 1-dot.radius
             dot.velocity[1] *= -1
 
+    def small_list(self, dot: Dot):
+        dot.small_list = np.random.choice(self.target_list, 2, False)
+
     def update(self):
         for dot in self.dot_list:
+            if self.ticker % 600 == 0:
+                self.small_list(dot)
             if self.mode != 0:
                 distance = vector_length(dot.target.position - dot.position)  # noqa
 
-                if self.mode == 1:
-                    if distance < self.accuracy:
+                if distance < self.accuracy:
+                    if self.mode == 1:
                         dot.target = Target()
-                if self.mode == 2:
-                    if distance < self.accuracy:
+                    if self.mode == 2:
                         dot.target = self.common_target
                         self.common_target.refresh()
-                if self.mode == 3:
-                    if distance < self.accuracy:
+                    if self.mode == 3:
                         dot.target = np.random.choice(self.target_list)
-                if self.mode == 4:
-                    if distance < self.accuracy:
+                    if self.mode == 4:
                         dot.target_num += 1
-                        dot.target = self.target_list[dot.target_num % len(
-                            self.target_list)]
+                        dot.target = self.target_list[dot.target_num % len(self.target_list)]  # noqa
+                    if self.mode == 5:
+                        dot.target_num += 1
+                        dot.target = dot.small_list[dot.target_num % len(dot.small_list)]  # noqa
 
                 desired_direction = normalize(dot.target.position - dot.position)  # noqa
 
@@ -218,6 +227,7 @@ class DotController:
             dot.y += dot.velocity[1] * self.tick
 
             self.wall_collision(dot)
+        self.ticker += 1
 
     def get(self):
         self.update()

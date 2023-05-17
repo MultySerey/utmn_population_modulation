@@ -25,7 +25,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(100, TICK)
+dot_controller = DotController(10, TICK)
 
 running = True
 
@@ -63,11 +63,8 @@ def redraw_window():
     pygame.display.update()
 
 
-ticker = 1
 while running:
     clock.tick(FPS)
-    ticker += 1
-
     redraw_window()
 
     for event in pygame.event.get():
@@ -84,11 +81,10 @@ while running:
                 dot_controller.mode = 3
             if event.key == pygame.K_4:
                 dot_controller.mode = 4
-            if event.key == pygame.K_n:
-                dot_controller.refresh_targets()
+            if event.key == pygame.K_5:
+                dot_controller.mode = 5
 
     dot_controller.update()
-
     screen.fill(COLORS["black"])
 
 pygame.quit()
