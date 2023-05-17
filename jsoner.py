@@ -105,11 +105,11 @@ class Dot:
 
 
 class DotController:
-    def __init__(self, dot_amount: int, tick: float):
+    def __init__(self, dot_amount: int, tick: float, mode: int = 0):
         self.dot_list: typing.List[Dot] = [Dot(i) for i in range(dot_amount)]
         self.accuracy = 0.05
         self.tick = tick
-        self._mode: int = 0
+        self._mode: int = mode
         self.common_target = Target()
         self.target_num = 6
         self.ticker = 0
