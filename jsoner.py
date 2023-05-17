@@ -111,7 +111,7 @@ class DotController:
         self.tick = tick
         self._mode: int = mode
         self.common_target = Target()
-        self.target_num = 6
+        self.target_num = 7
         self.ticker = 0
         pi_over_num = np.pi/self.target_num
         self.target_list = [
@@ -194,6 +194,7 @@ class DotController:
         for dot in self.dot_list:
             if self.ticker % 600 == 0:
                 self.small_list(dot)
+
             if self.mode != 0:
                 distance = vector_length(dot.target.position - dot.position)  # noqa
 
