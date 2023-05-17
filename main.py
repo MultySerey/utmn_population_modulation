@@ -25,7 +25,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(100, TICK)
+dot_controller = DotController(1, TICK)
 
 running = True
 
@@ -88,3 +88,4 @@ while running:
     screen.fill(COLORS["black"])
 
 pygame.quit()
+print(dot_controller.get())

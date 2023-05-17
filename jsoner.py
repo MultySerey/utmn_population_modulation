@@ -26,12 +26,6 @@ def normalize(delta_pos: np.ndarray):
     return delta_pos / vector_length(delta_pos)
 
 
-def insideUnitCircle():
-    a = np.random.random()
-    b = np.sqrt(1-a**2)
-    return np.array([a, b])
-
-
 class Target:
     def __init__(self, x: float = None, y: float = None):
         if not x and not y:
@@ -225,11 +219,9 @@ class DotController:
 
             for dot2 in self.dot_list:
                 if not dot2 == dot:
-                    # self.dot_by_dot_collision(dot, dot2)
                     self.is_ill(dot, dot2)
 
-            dot.x += dot.velocity[0] * self.tick
-            dot.y += dot.velocity[1] * self.tick
+            dot.position += dot.velocity * self.tick
 
             self.wall_collision(dot)
         self.ticker += 1
@@ -237,13 +229,10 @@ class DotController:
     def get(self):
         self.update()
         output: dict = {"count": len(self.dot_list)}
-        points: list = []
-        for dot in self.dot_list:
-            points.append({"id": dot.id,
-                           "radius": dot.radius,
-                           "x": dot.x,
-                           "y": dot.y,
-                           "illness": dot.is_ill})
-        output["points"] = points
-
+        output["points"] = [{"id": dot.id,
+                             "radius": dot.radius,
+                             "x": dot.x,
+                             "y": dot.y,
+                             "illness": dot.is_ill
+                             } for dot in self.dot_list]
         return json.dumps(output)
