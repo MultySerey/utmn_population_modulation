@@ -58,7 +58,7 @@ class Dot:
         self.position = np.random.random(2)
         self.velocity = (np.random.random(2)-0.5)*0.5
         self.radius = 0.01
-        self.maxSpeed = np.random.random()
+        self.maxSpeed = np.random.random()+0.5
         self.steer_strength = np.random.random()*3+2
         self.ill_radius = 0.02
         self._is_ill = np.around(np.random.random(), decimals=2)
@@ -169,19 +169,23 @@ class DotController:
     def wall_collision(self, dot: Dot):
         if dot.x-dot.radius < 0:
             dot.x = dot.radius
-            dot.velocity[0] *= -1
+            if self.mode == 0:
+                dot.velocity[0] *= -1
 
         if dot.y-dot.radius < 0:
             dot.y = dot.radius
-            dot.velocity[1] *= -1
+            if self.mode == 0:
+                dot.velocity[1] *= -1
 
         if dot.x+dot.radius > 1:
             dot.x = 1-dot.radius
-            dot.velocity[0] *= -1
+            if self.mode == 0:
+                dot.velocity[0] *= -1
 
         if dot.y+dot.radius > 1:
             dot.y = 1-dot.radius
-            dot.velocity[1] *= -1
+            if self.mode == 0:
+                dot.velocity[1] *= -1
 
     def small_list(self, dot: Dot):
         dot.small_list = np.random.choice(self.target_list, 2, False)
@@ -193,7 +197,7 @@ class DotController:
             if self.mode != 0:
                 distance = vector_length(dot.target.position - dot.position)  # noqa
 
-                if distance < self.accuracy:
+                if distance-dot.radius < self.accuracy:
                     if self.mode == 1:
                         dot.target = Target()
                     if self.mode == 2:
