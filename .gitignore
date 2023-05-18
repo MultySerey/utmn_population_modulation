@@ -1,4 +1,7 @@
 /Include
 /Lib
 /.idea
-__pycache__
+/__pycache__
+/dist
+/build
+*.spec
