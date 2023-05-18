@@ -53,7 +53,7 @@ class Dot:
         self.velocity = (np.random.random(2)-0.5)*0.5
         self.radius = 0.01
         self.maxSpeed = np.random.random()+0.5
-        self.steer_strength = np.random.random()*3+2
+        self.steer_strength = np.random.random()*3+1
         self.ill_radius = 0.02
         self._is_ill = np.around(np.random.random(), decimals=2)
         self.target: Target = Target()
@@ -147,7 +147,7 @@ class DotController:
         d = vector_length(other.position-dot.position)
         if d < dot.ill_radius+other.ill_radius:
             if other.is_ill:
-                dot.is_ill += (dot.is_ill+other.is_ill) *0.025*np.random.random()  # noqa
+                dot.is_ill += (dot.is_ill+other.is_ill) * 0.025*np.random.random()  # noqa
 
     # коллизия между точками
     def dot_by_dot_collision(self, dot: Dot, other: Dot):
@@ -222,6 +222,7 @@ class DotController:
 
             for dot2 in self.dot_list:
                 if not dot2 == dot:
+                    self.dot_by_dot_collision(dot, dot2)
                     self.is_ill(dot, dot2)
 
             dot.position += dot.velocity * self.tick

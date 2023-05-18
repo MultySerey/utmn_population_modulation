@@ -91,4 +91,3 @@ while running:
     screen.fill(COLORS["black"])
 
 pygame.quit()
-print(dot_controller.get())
