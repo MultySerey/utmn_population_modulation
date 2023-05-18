@@ -53,7 +53,7 @@ class Dot:
         self.velocity = (np.random.random(2)-0.5)*0.5
         self.radius = 0.01
         self.maxSpeed = np.random.random()+0.5
-        self.steer_strength = np.random.random()*3+1
+        self.steer_strength = np.random.random()*2
         self.ill_radius = 0.02
         self._is_ill = np.around(np.random.random(), decimals=2)
         self.target: Target = Target()

@@ -3,9 +3,9 @@ from numpy import around as nparound
 
 from jsoner import DotController
 
-WIDTH, HEIGHT = 640, 640
+WIDTH, HEIGHT = 800, 800
 MIN_W_H = min(WIDTH, HEIGHT)
-FPS = 60
+FPS = 30
 TICK = 1/FPS
 
 COLORS = {
