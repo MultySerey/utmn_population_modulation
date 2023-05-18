@@ -214,9 +214,9 @@ class DotController:
 
                 des_velocity = desired_direction * dot.maxSpeed
                 des_steer = (des_velocity - dot.velocity) * dot.steer_strength
-                acceleration = np.array(clamp_magnitude(des_steer, dot.steer_strength))  # noqa
+                acceleration = clamp_magnitude(des_steer, dot.steer_strength)  # noqa
 
-                dot.velocity = dot.velocity + acceleration * self.tick
+                dot.velocity += acceleration * self.tick
 
             dot.is_ill -= 0.005
 
