@@ -3,6 +3,8 @@ import typing
 
 import numpy as np
 
+import setings
+
 ONE_THIRD = 1/3
 
 
@@ -60,7 +62,7 @@ class Dot:
         self.target_num = 0
         self.small_list = None
         self.color = np.random.randint(255, size=3)
-        self.trail = []
+        self.trail = np.array([self.position])
 
     @property
     def x(self):
@@ -224,13 +226,14 @@ class DotController:
 
             for dot2 in self.dot_list:
                 if not dot2 == dot:
-                    self.dot_by_dot_collision(dot, dot2)
+                    if setings.DOT_BY_DOT_COLLISION:
+                        self.dot_by_dot_collision(dot, dot2)
                     self.is_ill(dot, dot2)
 
             dot.position += dot.velocity * self.tick
-
-            # self.wall_collision(dot)
-            dot.trail.append(dot.position*800)
+            if setings.WALL_COLLISION:
+                self.wall_collision(dot)
+            dot.trail = np.append(dot.trail, [dot.position], axis=0)
         self.ticker += 1
 
     def get(self):

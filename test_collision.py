@@ -3,9 +3,12 @@ import typing
 import numpy as np
 import pygame
 
-WIDTH, HEIGHT = 800, 800
+import setings
+
+WIDTH = setings.WIDTH
+HEIGHT = setings.HEIGHT
 MIN_W_H = min(WIDTH, HEIGHT)
-FPS = 30
+FPS = setings.FPS
 TICK = 1/FPS
 
 COLORS = {

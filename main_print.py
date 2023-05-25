@@ -1,11 +1,14 @@
 import pygame
 from numpy import around as nparound
+from numpy import array as nparray
 
+import setings
 from jsoner import DotController
 
-WIDTH, HEIGHT = 800, 800
+WIDTH = setings.WIDTH
+HEIGHT = setings.HEIGHT
 MIN_W_H = min(WIDTH, HEIGHT)
-FPS = 30
+FPS = setings.FPS
 TICK = 1/FPS
 
 COLORS = {
@@ -43,7 +46,7 @@ def redraw_window():
                                dot_controller.accuracy*MIN_W_H, 1)
     for dot in dot_controller:
         if len(dot.trail) > 2:
-            pygame.draw.lines(screen, dot.color, False, dot.trail, 5)
+            pygame.draw.lines(screen, dot.color, False, dot.trail*MIN_W_H, 5)
         """if dot_controller.mode == 1:
             pygame.draw.circle(screen, COLORS["green"],
                                dot.target.position*MIN_W_H,
@@ -90,7 +93,7 @@ while running:
                     target.refresh()
             if event.key == pygame.K_e:
                 for dot in dot_controller:
-                    dot.trail = []
+                    dot.trail = nparray([dot.position])
 
     dot_controller.update()
     screen.fill(COLORS["white"])

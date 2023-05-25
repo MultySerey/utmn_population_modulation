@@ -1,11 +1,13 @@
 import pygame
 from numpy import around as nparound
 
+import setings
 from jsoner import DotController
 
-WIDTH, HEIGHT = 800, 800
+WIDTH = setings.WIDTH
+HEIGHT = setings.HEIGHT
 MIN_W_H = min(WIDTH, HEIGHT)
-FPS = 30
+FPS = setings.FPS
 TICK = 1/FPS
 
 COLORS = {
