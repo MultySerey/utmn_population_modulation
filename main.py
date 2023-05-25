@@ -27,7 +27,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(100, TICK)
+dot_controller = DotController(100, TICK, 4)
 
 running = True
 
@@ -48,11 +48,6 @@ def redraw_window():
             pygame.draw.circle(screen, COLORS["green"],
                                dot.target.position*MIN_W_H,
                                dot_controller.accuracy*MIN_W_H, 1)"""
-        if dot.is_ill:
-            red_col = int(nparound(200*dot.is_ill))
-            pygame.draw.circle(screen, (red_col, 0, 0),
-                               dot.position * MIN_W_H,
-                               dot.radius*MIN_W_H)
 
         """pygame.draw.circle(screen, (50, 50, 50),
                            dot.position*640,

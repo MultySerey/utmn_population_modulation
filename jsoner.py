@@ -162,8 +162,8 @@ class DotController:
             p = (dot.position+other.position)*0.5
             dot.position = p-dot.radius*n
             # изменение скорости
-            # pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] - other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)  # noqa
-            # dot.velocity -= pv*n*dot.steer_strength*0.5
+            pv = (2*(dot.velocity[0]*n[0]+dot.velocity[1]*n[1] - other.velocity[0]*n[0]-other.velocity[1]*n[1])) / (dot.steer_strength+other.steer_strength)  # noqa
+            dot.velocity -= pv*n*dot.steer_strength*0.5
 
     # коллизия с границами области
     def wall_collision(self, dot: Dot):

@@ -31,6 +31,14 @@ class Dot:
         self.radius = 0.0625
 
     @property
+    def interval_x(self):
+        return [self.x-self.radius, self.x+self.radius]
+
+    @property
+    def interval_y(self):
+        return [self.y-self.radius, self.y+self.radius]
+
+    @property
     def x(self):
         return self.position[0]
 
@@ -54,6 +62,7 @@ class DotController:
     def __init__(self, dot_amount: int):
         self.dot_list: typing.List[Dot] = [Dot(i) for i in range(dot_amount)]
         self.dots_pos_x = {d.id: d.x for d in self.dot_list}
+        self.overlaps()
 
     def __len__(self):
         return len(self.dot_list)
@@ -73,6 +82,30 @@ class DotController:
         else:
             raise StopIteration
 
+    def overlaps(self):
+        ids = np.array([dot.id for dot in self.dot_list])
+        x_intervals = np.array([dot.interval_x for dot in self.dot_list])
+        y_intervals = np.array([dot.interval_y for dot in self.dot_list])
+        ind = np.argsort(x_intervals, axis=0)
+
+        ids = np.squeeze(np.delete(ids[ind], 0, 1))
+        x_intervals = np.squeeze(np.delete(x_intervals[ind], 0, 1))
+        y_intervals = np.squeeze(np.delete(y_intervals[ind], 0, 1))
+
+        overlap_list = set()
+
+        for i in range(ids.size):
+            for k in range(ids.size):
+                if ids[i] != ids[k]:
+                    if x_intervals[i][1] > x_intervals[k][0] and x_intervals[i][0] < x_intervals[k][1]:  # noqa
+                        if y_intervals[i][1] > y_intervals[k][0] and y_intervals[i][0] < y_intervals[k][1]:  # noqa
+                            overlap_list.add(ids[i])
+
+        if len(overlap_list):
+            return overlap_list
+        else:
+            return None
+
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -90,11 +123,11 @@ dots = DotController(4)
 def redraw_window():
     for d in dots:
         pygame.draw.circle(screen, COLORS["white"],
-                           d.position*800,
-                           d.radius*800, 1)
+                           d.position*MIN_W_H,
+                           d.radius*MIN_W_H, 1)
         text = font.render(str(d.id), False, COLORS["white"])
         textRect = text.get_rect()
-        textRect.center = ((d.x*800, d.y*800))
+        textRect.center = ((d.x*MIN_W_H, d.y*MIN_W_H))
         screen.blit(text, textRect)
     pygame.display.update()
 
@@ -109,7 +142,7 @@ while running:
             if event.key == pygame.K_r:
                 for d in dots:
                     d.refresh()
-                print(dots.dots_pos_x)
+                print(dots.overlaps())
 
     screen.fill(COLORS["black"])
 
