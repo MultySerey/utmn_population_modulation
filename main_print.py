@@ -25,7 +25,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(50, TICK)
+dot_controller = DotController(3, TICK, mode=4)
 
 running = True
 
@@ -42,6 +42,8 @@ def redraw_window():
                                target.position*MIN_W_H,
                                dot_controller.accuracy*MIN_W_H, 1)
     for dot in dot_controller:
+        if len(dot.trail) > 2:
+            pygame.draw.lines(screen, dot.color, False, dot.trail, 5)
         """if dot_controller.mode == 1:
             pygame.draw.circle(screen, COLORS["green"],
                                dot.target.position*MIN_W_H,
@@ -55,11 +57,11 @@ def redraw_window():
         """pygame.draw.circle(screen, (50, 50, 50),
                            dot.position*640,
                            dot.ill_radius*640, width=2)"""
-        pygame.draw.circle(screen, COLORS["white"], dot.position * MIN_W_H,
-                           dot.radius * MIN_W_H, width=2)
+        pygame.draw.circle(screen, dot.color, dot.position * MIN_W_H,
+                           dot.radius * MIN_W_H)
 
-        pygame.draw.line(screen, COLORS["white"], dot.position*MIN_W_H,
-                         dot.direction*MIN_W_H, width=2)
+        pygame.draw.line(screen, dot.color, dot.position*MIN_W_H,
+                         dot.direction*MIN_W_H, width=5)
     pygame.display.update()
 
 
@@ -86,8 +88,11 @@ while running:
             if event.key == pygame.K_n:
                 for target in dot_controller.target_list:
                     target.refresh()
+            if event.key == pygame.K_e:
+                for dot in dot_controller:
+                    dot.trail = []
 
     dot_controller.update()
-    screen.fill(COLORS["black"])
+    screen.fill(COLORS["white"])
 
 pygame.quit()

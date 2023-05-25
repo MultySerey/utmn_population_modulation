@@ -52,13 +52,15 @@ class Dot:
         self.position = np.random.random(2)
         self.velocity = (np.random.random(2)-0.5)*0.5
         self.radius = 0.01
-        self.maxSpeed = np.random.random()+0.5
+        self.max_speed = np.random.random()+0.5
         self.steer_strength = np.random.random()+0.5
         self.ill_radius = 0.02
         self._is_ill = np.around(np.random.random(), decimals=2)
         self.target: Target = Target()
         self.target_num = 0
         self.small_list = None
+        self.color = np.random.randint(255, size=3)
+        self.trail = []
 
     @property
     def x(self):
@@ -195,7 +197,7 @@ class DotController:
             if self.mode != 0:
                 distance = vector_length(dot.target.position - dot.position)  # noqa
 
-                if distance-dot.radius < self.accuracy:
+                if distance+dot.radius < self.accuracy:
                     if self.mode == 1:
                         dot.target = Target()
                     if self.mode == 2:
@@ -212,7 +214,7 @@ class DotController:
 
                 desired_direction = normalize(dot.target.position - dot.position)  # noqa
 
-                des_velocity = desired_direction * dot.maxSpeed
+                des_velocity = desired_direction * dot.max_speed
                 des_steer = (des_velocity - dot.velocity) * dot.steer_strength
                 acceleration = clamp_magnitude(des_steer, dot.steer_strength)  # noqa
 
@@ -222,12 +224,13 @@ class DotController:
 
             for dot2 in self.dot_list:
                 if not dot2 == dot:
-                    # self.dot_by_dot_collision(dot, dot2)
+                    self.dot_by_dot_collision(dot, dot2)
                     self.is_ill(dot, dot2)
 
             dot.position += dot.velocity * self.tick
 
-            self.wall_collision(dot)
+            # self.wall_collision(dot)
+            dot.trail.append(dot.position*800)
         self.ticker += 1
 
     def get(self):
