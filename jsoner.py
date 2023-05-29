@@ -17,9 +17,9 @@ def vector_length(v: np.ndarray) -> float:
 
 
 def clamp_magnitude(vector: np.ndarray, max_length):
-    sqrmag = sqr_mag(vector)
-    if sqrmag > (max_length ** 2):
-        vector /= np.sqrt(sqrmag)
+    sqrmag = vector_length(vector)
+    if sqrmag > np.abs(max_length):
+        vector /= sqrmag
         return vector*max_length
     return vector
 
