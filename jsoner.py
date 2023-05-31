@@ -108,7 +108,7 @@ class Dot:
 
 class DotController:
     def __init__(self, dot_amount: int, tick: float, mode: int = 0, max_speed: float = 0.5):
-        self.dot_list: typing.List[Dot] = [Dot(i) for i in range(dot_amount)]
+        self.dot_list: typing.List[Dot] = [Dot(i, max_speed) for i in range(dot_amount)]
         self.accuracy = 0.05
         self.tick = tick
         self._mode: int = mode
