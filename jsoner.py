@@ -107,13 +107,14 @@ class Dot:
 
 
 class DotController:
-    def __init__(self, dot_amount: int, tick: float, mode: int = 0, max_speed: float = 0.5):
-        self.dot_list: typing.List[Dot] = [Dot(i, max_speed) for i in range(dot_amount)]
+    def __init__(self, dot_amount: int, tick: float, mode: int = 0, max_speed: float = 0.5, target_num: int = 7):
+        self.dot_list: typing.List[Dot] = [
+            Dot(i, max_speed) for i in range(dot_amount)]
         self.accuracy = 0.05
         self.tick = tick
         self._mode: int = mode
         self.common_target = Target()
-        self.target_num = 7
+        self.target_num = target_num
         self.ticker = 0
         pi_over_num = np.pi/self.target_num
         self.target_list = [
@@ -276,6 +277,7 @@ class DotController:
     def get(self):
         self.update()
         output: dict = {"count": len(self.dot_list)}
+        output["target_radius"] = self.accuracy
         if self.mode < 2:
             output["target"] = [[-1, -1]]
         if self.mode == 2:
