@@ -45,12 +45,12 @@ class Target:
 
 
 class Dot:
-    def __init__(self, id: int) -> None:
+    def __init__(self, id: int, max_speed) -> None:
         self.id = id
         self.position = np.random.random(2)
         self.velocity = (np.random.random(2)-0.5)*0.5
         self.radius = 0.01
-        self.max_speed = np.random.random()+0.5
+        self.max_speed = max_speed
         self.steer_strength = np.random.random()+0.5
         self.ill_radius = 0.02
         self._is_ill = np.around(np.random.random(), decimals=2)
@@ -107,7 +107,7 @@ class Dot:
 
 
 class DotController:
-    def __init__(self, dot_amount: int, tick: float, mode: int = 0):
+    def __init__(self, dot_amount: int, tick: float, mode: int = 0, max_speed: float = 0.5):
         self.dot_list: typing.List[Dot] = [Dot(i) for i in range(dot_amount)]
         self.accuracy = 0.05
         self.tick = tick
@@ -121,6 +121,10 @@ class DotController:
                    np.sin(pi_over_num*i*2+1)*ONE_THIRD+0.5) for i in range(self.target_num)]  # noqa
         for dot in self.dot_list:
             self.small_list(dot)
+
+    def set_speed(self, input_speed):
+        for dot in self.dot_list:
+            dot.max_speed = input_speed
 
     @property
     def mode(self):
@@ -272,8 +276,10 @@ class DotController:
     def get(self):
         self.update()
         output: dict = {"count": len(self.dot_list)}
+        if self.mode < 2:
+            output["target"] = [[-1, -1]]
         if self.mode == 2:
-            output["target"] = self.common_target.position.tolist()
+            output["target"] = [self.common_target.position.tolist()]
         if self.mode > 2:
             output["target"] = [t.position.tolist() for t in self.target_list]
         output["points"] = [{"id": dot.id,
