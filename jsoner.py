@@ -8,12 +8,8 @@ import setings
 ONE_THIRD = 1/3
 
 
-def sqr_mag(v: np.ndarray) -> float:
-    return v[0] ** 2 + v[1] ** 2
-
-
 def vector_length(v: np.ndarray) -> float:
-    return np.sqrt(sqr_mag(v))
+    return np.sqrt(v[0] ** 2 + v[1] ** 2)
 
 
 def clamp_magnitude(vector: np.ndarray, max_length):
@@ -79,6 +75,14 @@ class Dot:
     @y.setter
     def y(self, value):
         self.position[1] = value
+
+    @property
+    def interval_x(self):
+        return [self.x-self.radius, self.x+self.radius]
+
+    @property
+    def interval_y(self):
+        return [self.y-self.radius, self.y+self.radius]
 
     @property
     def is_ill(self):
@@ -191,6 +195,30 @@ class DotController:
     def small_list(self, dot: Dot):
         dot.small_list = np.random.choice(self.target_list, 2, False)
 
+    def overlaps(self):
+        ids = np.array([dot.id for dot in self.dot_list])
+        x_intervals = np.array([dot.interval_x for dot in self.dot_list])
+        y_intervals = np.array([dot.interval_y for dot in self.dot_list])
+        ind = np.argsort(x_intervals, axis=0)
+
+        ids = np.squeeze(np.delete(ids[ind], 0, 1))
+        x_intervals = np.squeeze(np.delete(x_intervals[ind], 0, 1))
+        y_intervals = np.squeeze(np.delete(y_intervals[ind], 0, 1))
+
+        overlap_list = set()
+
+        for i in range(ids.size):
+            for k in range(ids.size):
+                if ids[i] != ids[k]:
+                    if x_intervals[i][1] > x_intervals[k][0] and x_intervals[i][0] < x_intervals[k][1]:  # noqa
+                        if y_intervals[i][1] > y_intervals[k][0] and y_intervals[i][0] < y_intervals[k][1]:  # noqa
+                            overlap_list.add(ids[i])
+
+        if len(overlap_list):
+            return overlap_list
+        else:
+            return None
+
     def update(self):
         for dot in self.dot_list:
             if self.ticker % 600 == 0:
@@ -223,22 +251,31 @@ class DotController:
                 dot.velocity += acceleration * self.tick
 
             dot.is_ill -= 0.005
-
-            for dot2 in self.dot_list:
-                if not dot2 == dot:
-                    if setings.DOT_BY_DOT_COLLISION:
-                        self.dot_by_dot_collision(dot, dot2)
-                    self.is_ill(dot, dot2)
-
             dot.position += dot.velocity * self.tick
             if setings.WALL_COLLISION:
                 self.wall_collision(dot)
             dot.trail = np.append(dot.trail, [dot.position], axis=0)
+
+        over = self.overlaps()
+        if over:
+            for i in over:
+                dot = self.dot_list[i]
+                for k in over:
+                    dot2 = self.dot_list[k]
+                    if not dot2 == dot:
+                        if setings.DOT_BY_DOT_COLLISION:
+                            self.dot_by_dot_collision(dot, dot2)
+                        self.is_ill(dot, dot2)
+
         self.ticker += 1
 
     def get(self):
         self.update()
         output: dict = {"count": len(self.dot_list)}
+        if self.mode == 2:
+            output["target"] = self.common_target.position.tolist()
+        if self.mode > 2:
+            output["target"] = [t.position.tolist() for t in self.target_list]
         output["points"] = [{"id": dot.id,
                              "radius": dot.radius,
                              "x": dot.x,

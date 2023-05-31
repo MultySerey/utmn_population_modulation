@@ -27,7 +27,7 @@ clock = pygame.time.Clock()
 
 
 TARGET = False
-dot_controller = DotController(50, TICK)
+dot_controller = DotController(100, TICK)
 
 running = True
 
