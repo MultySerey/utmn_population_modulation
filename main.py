@@ -2,7 +2,7 @@ import pygame
 from numpy import around as nparound
 
 import setings
-from jsoner import DotController
+from simulation import DotController
 
 WIDTH = setings.WIDTH
 HEIGHT = setings.HEIGHT

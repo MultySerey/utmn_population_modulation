@@ -3,7 +3,7 @@ from numpy import around as nparound
 from numpy import array as nparray
 
 import setings
-from jsoner import DotController
+from simulation import DotController
 
 WIDTH = setings.WIDTH
 HEIGHT = setings.HEIGHT
@@ -36,19 +36,19 @@ running = True
 def redraw_window():
     pygame.draw.rect(screen, (100, 100, 100), (0, 0, MIN_W_H, MIN_W_H), 1)
     if dot_controller.mode == 2:
-        pygame.draw.circle(screen, COLORS["green"],
+        pygame.draw.circle(screen, COLORS["black"],
                            dot_controller.common_target.position*MIN_W_H,
-                           dot_controller.accuracy*MIN_W_H, 1)
+                           dot_controller.accuracy*MIN_W_H, 2)
     if dot_controller.mode >= 3:
         for target in dot_controller.target_list:
-            pygame.draw.circle(screen, COLORS["green"],
+            pygame.draw.circle(screen, COLORS["black"],
                                target.position*MIN_W_H,
-                               dot_controller.accuracy*MIN_W_H, 1)
+                               dot_controller.accuracy*MIN_W_H, 2)
     for dot in dot_controller:
         if len(dot.trail) > 2:
             pygame.draw.lines(screen, dot.color, False, dot.trail*MIN_W_H, 5)
         """if dot_controller.mode == 1:
-            pygame.draw.circle(screen, COLORS["green"],
+            pygame.draw.circle(screen, COLORS["black"],
                                dot.target.position*MIN_W_H,
                                dot_controller.accuracy*MIN_W_H, 1)"""
         if dot.is_ill:

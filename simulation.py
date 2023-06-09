@@ -261,7 +261,10 @@ class DotController:
                 self.wall_collision(dot)
             dot.trail = np.append(dot.trail, [dot.position], axis=0)
 
-        over = self.overlaps()
+        if setings.DOT_BY_DOT_COLLISION:
+            over = self.overlaps()
+        else:
+            over = None
         if over:
             for i in over:
                 dot = self.dot_list[i]
